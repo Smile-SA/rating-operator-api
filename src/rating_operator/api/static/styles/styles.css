@@ -1,0 +1,237 @@
+body {
+    background-image: url('1567665.png');
+       }
+ .input {
+    height: 1em;
+    padding: calc(0.875em - 1px) calc(2em - 1px);
+    width: 100%; 
+margin-bottom: 10px; 
+background: rgba(0, 0, 0, 0.555);
+border: none;
+outline: none;
+padding: 10px;
+font-size: 13px;
+color: #fff;
+text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+border: 1px solid rgba(0,0,0,0.3);
+border-radius: 4px;
+box-shadow: inset 0 -5px 45px rgba(100,100,100,0.2), 0 1px 1px rgba(255,255,255,0.2);
+-webkit-transition: box-shadow .5s ease;
+-moz-transition: box-shadow .5s ease;
+-o-transition: box-shadow .5s ease;
+-ms-transition: box-shadow .5s ease;
+transition: box-shadow .5s ease;
+    }  
+    .box { 
+position: absolute;
+top: 80%;
+left: 50%;
+margin: -150px 0 0 -150px;
+width:300px;
+height:300px;
+}  
+.box2 { 
+position: absolute;
+top: 40%;
+left: 46%;
+margin: -150px 0 0 -150px;
+width:400px;
+height:400px;
+background:rgba(29, 82, 82, 0.822);
+}  
+.h1 { 
+position: absolute;
+top: 30%;
+left: 45%;
+margin: -150px 0 0 -150px;
+width:800px;
+height:800px;
+}  
+.h2 { 
+    position: absolute;
+    top: 30%;
+    left: 35%;
+    margin: -150px 0 0 -150px;
+    width:800px;
+    height:800px;
+    } 
+h3{
+   color:rgb(179, 212, 207)
+}
+.button {
+    position: absolute;
+    top: 40%;
+    left: 35%;
+    background-color: #f4511e;
+    border: none;
+    color: white;
+    padding: 20px 78px;
+    text-align: center;
+    font-size: 18px;
+    margin: 4px 2px;
+    opacity: 0.6;
+    transition: 0.3s;
+    display: inline-block;
+    text-decoration: none;
+    cursor: pointer;
+}
+.button:hover {opacity: 1;}
+
+
+/*Jonathan*/
+
+h1 {
+     color:rgb(179, 212, 207);
+     font-family:verdana;
+     margin-left:20px;
+}
+
+#DashboardList {
+ width: 400px;
+ margin-top: 10%;
+ margin-left: 50%;
+}
+
+.button-dashboard {
+background-color: rgba(82, 151, 140, 0.6);
+border: none;
+color: white;
+padding: 20px 26px;
+text-align: center;
+font-size: 18px;
+margin: 4px 2px 0px -200px;
+transition: 0.3s;
+display: inline-block;
+text-decoration: none;
+cursor: pointer;
+width: 100%;
+}
+
+.button-dashboard:hover {opacity: rgba(82, 151, 140, 1)}
+
+.button2 {
+    position: absolute;
+    top: 30%;
+    left: 35%;
+    background-color:rgba(82, 151, 140, 0.6);
+    border: none;
+    color: white;
+    padding: 20px 26px;
+    text-align: center;
+    font-size: 18px;
+    margin: 4px 2px;
+    transition: 0.3s;
+    display: inline-block;
+    text-decoration: none;
+    cursor: pointer;
+}
+.button2:hover {opacity: rgba(82, 151, 140, 1)}
+
+.button3 {
+    position: absolute;
+    top: 50%;
+    left: 35%;
+    background-color: #f4511e;
+    border: none;
+    color: white;
+    padding: 20px 100px;
+    text-align: center;
+    font-size: 18px;
+    margin: 4px 2px;
+    opacity: 0.6;
+    transition: 0.3s;
+    display: inline-block;
+    text-decoration: none;
+    cursor: pointer;
+}
+.button3:hover {opacity: 1}
+
+
+.logo {
+  display: inline-block;
+  margin: 15px; /* margin: 20px was off */
+  float: left;
+  max-height: 50px;
+  max-width: 20px;
+  border-radius: 50%; /* makes it a circle */
+}
+
+
+.imgcontainer {
+	text-align: center;
+}
+
+.avatar {
+	width: 150%;
+	border-radius: 0%;
+}
+.button-login {
+    background-color:rgba(82, 151, 140, 1);
+    border: none;
+    color: white;
+    padding: 12px 10px;
+    text-align: center;
+    font-size: 18px;
+    margin: 20px 2px 4px 716px;
+    transition: 0.3s;
+    display: inline-block;
+    text-decoration: none;
+    cursor: pointer;
+    border-color:rgb(18, 73, 30); 
+}
+
+.button-login:hover {
+    background-color:rgba(82, 151, 140, 0.7);
+}
+.button-login-home{
+background-color: rgba(82, 151, 140, 1);
+border: none;
+color: white;
+padding: 5px 10px;
+text-align: center;
+font-size: 18px;
+margin: 4px 2px 5px 2px;
+transition: 0.3s;
+display: inline-block;
+text-decoration: none;
+cursor: pointer;
+border-color: rgb(18, 73, 30);
+}
+.button-login-home:hover {
+    background-color:rgba(82, 151, 140, 0.7);
+}
+
+.button-logout{
+    position: absolute;
+    top: 24%;
+    left: -1%;
+    background-color:rgba(82, 151, 140, 0.7);
+    border: none;
+    color: white;
+    padding: 8px 35px;
+    text-align: center;
+    font-size: 18px;
+    margin: 4px 2px;
+    opacity: 6;
+    transition: 0.3s;
+    display: inline-block;
+    text-decoration: none;
+    cursor: pointer;
+}
+.button-return-dash {
+    position: absolute;
+    top: 24%;
+    left: 56%;
+    background-color:rgba(82, 151, 140, 0.7);
+    border: none;
+    color: white;
+    padding: 8px 10px;
+    text-align: center;
+    font-size: 18px;
+    margin: 4px 2px;
+    opacity: 6;
+    transition: 0.3s;
+    display: inline-block;
+    text-decoration: none;
+    cursor: pointer;
+}

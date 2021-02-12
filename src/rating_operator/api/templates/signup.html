@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>    
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/styles.css') }}">
+      </head>
+      <body>
+        <div class="h1"> <h1> <p> Welcome to the Rating Operator </p> </h1> </div> 
+            <div class="box2">
+            <div class="box">
+        
+                <h3> <p> Create your tenants here! </p> </h3>   
+                <form method="POST" action="/signup_user">
+                    <div class="field">
+                        <div class="control">
+                            <input
+                            class="input is-large"
+                            type="text"
+                            name="tenant"
+                            placeholder="Your account name"
+                            autofocus="">
+                        </div>
+                    </div>
+        
+                    <div class="field">
+                        <div class="control">
+                            <input
+                            class="input is-large"
+                            type="password"
+                            name="password"
+                            placeholder="Your Password">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input
+                            type="number"
+                            id="quantity"
+                            name="quantity"
+                            value="1"
+                            min="1"
+                            max="5">
+                        </div>
+                    </div>
+                   
+                    <p><button class="button-login-home">Register</button></p>
+       
+                </form>
+            </div>
+        </div>
+    </div>
+      
+       </body>
+</html>

@@ -1,0 +1,51 @@
+---
+variables:
+  GIT_DEPTH: 1
+
+image: docker:git
+
+services:
+- docker:dind
+
+.docker_login: &docker_login |
+  echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+
+stages:
+- test
+- build
+
+run-tests-37:
+  stage: test
+  image: python:3.7-alpine
+  script:
+  - apk --update --no-cache add python3 python3-dev py-pip build-base postgresql-dev
+  - pip install wheel tox
+  - tox
+
+run-tests-38:
+  stage: test
+  image: python:3.8-alpine
+  script:
+  - apk --update --no-cache add python3 python3-dev py-pip build-base postgresql-dev
+  - pip install wheel tox
+  - tox
+
+build-master:
+  stage: build
+  script:
+  - *docker_login
+  - docker build -f docker/Dockerfile --pull -t "$CI_REGISTRY_IMAGE:latest" .
+  - docker push "$CI_REGISTRY_IMAGE"
+  only:
+    refs:
+    - master
+
+build:
+  stage: build
+  script:
+  - *docker_login
+  - docker build -f docker/Dockerfile --pull -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME" .
+  - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+  except:
+    refs:
+    - master

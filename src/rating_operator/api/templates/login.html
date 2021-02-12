@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>    
+
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static',filename='Circle_Logo-Rating-Operator.png') }}" />
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/styles.css') }}">
+      </head>
+      <body>
+        <div class="h1"> <h1> <p> Welcome to the Rating Operator </p> </h1> </div> 
+            <div class="box2">
+                <div class="imgcontainer">
+                    <img src="{{ url_for('static',filename='Circle_Logo-Rating-Operator.png') }}"  alt="Avatar" class="avatar" style="width:200px">
+                   </div>
+            <div class="box">
+        
+
+                {% if tenant %}
+                    <h3>
+                        <a>You are login as {{ tenant }}</a>
+                    </h3>
+                    <form method="POST" action="/logout">
+                        <button class="button-logout" type="submit"> LOGOUT </button>
+                    </form>
+                    <form method="POST" action="/dashboards">
+                        <button class="button-return-dash" type="submit"> DASHBOARDS </button>
+                    </form>
+                {% else %}
+                <h3> <p> Login user here! </p> </h3>   
+                     <form method="POST" action="/login_user">
+                            <div class="field">
+                                <div class="control">
+                                    <input
+                                    class="input is-large"
+                                    type="text"
+                                    name="tenant"
+                                    placeholder="Your account name"
+                                    autofocus="">
+                                </div>
+                            </div>
+        
+                            <div class="field">
+                                <div class="control">
+                                    <input
+                                    class="input is-large"
+                                    type="password"
+                                    name="password"
+                                    placeholder="Your Password">
+                                </div>
+                            </div>
+                            <button
+                            class="button-login-home">Login</button>
+                        </form>
+                {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+       </body>
+</html>

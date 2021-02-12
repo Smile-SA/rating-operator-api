@@ -1,0 +1,15 @@
+__pycache__
+.cache
+.eggs
+.git
+.gitignore
+.gitlab-ci.yml
+.tox
+*.egg-info
+*.pyc
+LICENSE.txt
+README.*
+
+build
+dist
+venv
