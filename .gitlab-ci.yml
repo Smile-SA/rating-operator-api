@@ -10,6 +10,9 @@ services:
 .docker_login: &docker_login |
   echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
 
+.docker_login_dockerhub: &docker_login_dockerhub |
+  echo "$CI_DOCKER_REGISTRY_PASSWORD" | docker login -u "$CI_DOCKER_REGISTRY_USER" --password-stdin "$CI_DOCKER_REGISTRY"
+
 stages:
 - test
 - build
@@ -46,6 +49,26 @@ build:
   - *docker_login
   - docker build -f docker/Dockerfile --pull -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME" .
   - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+  except:
+    refs:
+    - master
+
+build-master-dockerhub:
+  stage: build
+  script:
+  - *docker_login_dockerhub
+  - docker build -f build/Dockerfile --pull -t "$CI_DOCKER_REGISTRY_IMAGE:latest" .
+  - docker push "$CI_DOCKER_REGISTRY_IMAGE"
+  only:
+    refs:
+    - master
+
+build-dockerhub:
+  stage: build
+  script:
+  - *docker_login_dockerhub
+  - docker build -f build/Dockerfile --pull -t "$CI_DOCKER_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME" .
+  - docker push "$CI_DOCKER_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
   except:
     refs:
     - master
