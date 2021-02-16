@@ -128,10 +128,10 @@ def verify_user_keycloak(tenant: AnyStr, password: AnyStr) -> bool:
 
     Return a boolean describing the success of the user verification in keycloak.
     """
-    return get_keycloak_user_token(tenant, password) is not None
+    return get_keycloak_user_token(tenant, password)
 
 
-def verify_user(tenant: AnyStr, password: AnyStr) -> bool:
+def verify_user(tenant: AnyStr, password: AnyStr) -> bool or Dict:
     """
     Verify the user through keycloak if configured, or locally.
 
@@ -210,13 +210,17 @@ def password() -> Text:
     return render_template('password.html')
 
 
-# TODO (*) Query grafana to list the available dashboards
-#          and inject them into the template below
 @auth_routes.route('/dashboards', methods=['POST', 'GET'])
 def dashboards() -> Text:
     """Return the html template for the /dashboards of rating-operator."""
+    # Get tenant to load or not administrator dashboards.
     admin = session.get('tenant', 'default') == os.environ.get('ADMIN_ACCOUNT', 'admin')
-    return render_template('dashboards.html', admin=admin)
+
+    # Get dashboard list
+    dashboards_url = grafana.get_grafana_dashboards_url(admin)
+
+    return render_template('dashboards.html',
+                           dashboards=dashboards_url)
 
 
 @auth_routes.route('/login_user', methods=['POST'])
@@ -228,22 +232,22 @@ def login_user() -> Response:
     """
     tenant = request.form.get('tenant')
     password = request.form.get('password')
-    if verify_user(tenant, password):
+    verified = verify_user(tenant, password)
+    if verified:
         session.update({
             'tenant': tenant,
             'timestamp': time.time(),
         })
         cookie_settings = {}
         if envvar_string('KEYCLOAK'):
-            session.update({'token': get_keycloak_user_token(tenant, password)})
+            session.update({'token': verified})
             cookie_settings.update({
                 'domain': os.environ.get('DOMAIN'),
                 'httponly': envvar_string('COOKIE_HTTPONLY'),
                 'secure': envvar_string('COOKIE_SECURE'),
                 'samesite': envvar_string('COOKIE_SAMESITE')
             })
-        to = grafana.get_frontend_url()
-        response = make_response(redirect(to))
+        response = make_response(redirect('/dashboards'))
         if envvar('GRAFANA') == 'true':
             grafana_session = grafana.login_grafana_user(tenant, password)
             if grafana_session:

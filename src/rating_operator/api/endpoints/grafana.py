@@ -1,6 +1,6 @@
 import datetime
 import os
-from typing import AnyStr, Dict
+from typing import AnyStr, Dict, List
 
 from flask import Blueprint, current_app, jsonify, make_response, request, url_for
 from flask import Response
@@ -20,29 +20,59 @@ def get_backend_url() -> AnyStr:
     return envvar('GRAFANA_BACKEND_URL')
 
 
-def get_frontend_url() -> AnyStr:
-    """Return the Grafana dashboard url."""
-    dashboard_url = os.environ.get('DASHBOARD_MENU_URL')
-    if dashboard_url:
-        return dashboard_url + '/dashboards'
+def format_grafana_frontend_request(url: AnyStr) -> AnyStr:
+    """
+    Format the URL for a frontend request toward Grafana.
 
-    frontend_url = envvar('FRONTEND_URL')
+    :url (AnyStr) A string representing the destination of the request.
+
+    Return the formatted URL.
+    """
     protocol = 'https' if os.environ.get('AUTH', 'false') == 'true' else 'http'
-    if envvar('GRAFANA') == 'true':
-        return f'{protocol}://{frontend_url}/d/dash/cloud-prices-dashboard?orgId=1'
-    return 'http://localhost:5012'
+    grafana_frontend_url = envvar('FRONTEND_URL')
+    return f'{protocol}://{grafana_frontend_url}{url}'
+
+
+def format_grafana_admin_request(url: AnyStr) -> AnyStr:
+    """
+    Format the URL for an administrator request toward Grafana.
+
+    :url (AnyStr) A string representing the destination of the request.
+
+    Return the formatted URL.
+    """
+    admin_password = envvar('GRAFANA_ADMIN_PASSWORD')
+    admin_name = os.environ.get('ADMIN_ACCOUNT', 'admin')
+    protocol = 'https' if os.environ.get('AUTH', 'false') == 'true' else 'http'
+    grafana_backend_url = get_backend_url()
+    return f'{protocol}://{admin_name}:{admin_password}@{grafana_backend_url}{url}'
+
+
+def get_grafana_dashboards_url(admin: bool) -> List[Dict]:
+    """
+    Get a list of dashboard available to the tenant.
+
+    :admin (bool) A boolean representing admin status.
+
+    Return a list of dashboards dictionaries.
+    """
+    urls = []
+    req = format_grafana_admin_request('/api/search?query=[Grafonnet]')
+    results = requests.get(req).json()
+    for item in results:
+        folder_title = item.get('folderTitle')
+        if admin or not folder_title or folder_title != 'admin':
+            item['url'] = format_grafana_frontend_request(item['url'])
+            urls.append(item)
+    return urls
 
 
 def get_grafana_users() -> Dict:
     """Return the grafana users."""
     users = {}
     try:
-        admin_password = envvar('GRAFANA_ADMIN_PASSWORD')
-        admin_name = os.environ.get('ADMIN_ACCOUNT', 'admin')
-        protocol = 'https' if os.environ.get('AUTH', 'false') == 'true' else 'http'
-        grafana_backend_url = get_backend_url()
-        response = requests.get(
-            f'{protocol}://{admin_name}:{admin_password}@{grafana_backend_url}/api/users')
+        req = format_grafana_admin_request('/api/users')
+        response = requests.get(req)
         for user in response.json():
             users[user['login']] = user['id']
     except requests.exceptions.RequestException as exc:
@@ -62,14 +92,8 @@ def get_grafana_user(tenant: AnyStr) -> AnyStr:
 def logout_grafana_user(tenant):
     grafana_id = get_grafana_user(tenant)
     try:
-        admin_password = envvar('GRAFANA_ADMIN_PASSWORD')
-        admin_name = os.environ.get('ADMIN_ACCOUNT', 'admin')
-        protocol = 'https' if os.environ.get('AUTH', 'false') == 'true' else 'http'
-
-        grafana_backend_url = get_backend_url()
-        requests.post(
-            f'{protocol}://{admin_name}:{admin_password}@{grafana_backend_url}'
-            f'/api/admin/users/{grafana_id}/logout')
+        req = format_grafana_admin_request(f'/api/admin/users/{grafana_id}/logout')
+        requests.post(req)
     except requests.exceptions.RequestException as exc:
         raise exc
 
@@ -114,14 +138,8 @@ def create_grafana_user(tenant: AnyStr, password: AnyStr):
         'login': tenant,
         'password': password
     }
-    admin_password = envvar('GRAFANA_ADMIN_PASSWORD')
-    admin_name = os.environ.get('ADMIN_ACCOUNT', 'admin')
-    protocol = 'https' if os.environ.get('AUTH', 'false') == 'true' else 'http'
-    grafana_backend_url = get_backend_url()
-    requests.post(
-        f'{protocol}://{admin_name}:{admin_password}@{grafana_backend_url}'
-        '/api/admin/users',
-        data=payload)
+    req = format_grafana_admin_request('/api/admin/users')
+    requests.post(req, data=payload)
 
 
 def update_grafana_password(grafana_id: AnyStr, password: AnyStr):
@@ -135,14 +153,8 @@ def update_grafana_password(grafana_id: AnyStr, password: AnyStr):
         'password': password
     }
     try:
-        admin_password = envvar('GRAFANA_ADMIN_PASSWORD')
-        admin_name = os.environ.get('ADMIN_ACCOUNT', 'admin')
-        protocol = 'https' if os.environ.get('AUTH', 'false') == 'true' else 'http'
-        grafana_backend_url = get_backend_url()
-        requests.put(
-            f'{protocol}://{admin_name}:{admin_password}@{grafana_backend_url}'
-            f'/api/admin/users/{grafana_id}/password',
-            data=payload)
+        req = format_grafana_admin_request(f'/api/admin/users/{grafana_id}/password')
+        requests.put(req, data=payload)
     except requests.exceptions.RequestException as exc:
         raise exc
 
