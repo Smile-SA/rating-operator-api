@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static',filename='Circle_Logo-Rating-Operator.png') }}" />
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/styles.css') }}">
+  </head>
+  <body>
+    <h1> Select a dashboard: </h1>
+    <div id="DashboardList">
+      {% for dashboard in dashboards %}
+      <tr>
+        <a href={{dashboard.url}}>
+          <button class="button-dashboard">{{dashboard.title}}</button>
+        </a>
+      </tr>
+      {% endfor %}
+    </div>
+    <form action="/login" method="POST">
+      <button
+      class="button-login" type="submit">Return to login page </button>
+    </form>
+  </body>
+</html>
