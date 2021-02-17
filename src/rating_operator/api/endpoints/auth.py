@@ -242,12 +242,17 @@ def login_user() -> Response:
         if envvar_string('KEYCLOAK'):
             session.update({'token': verified})
             cookie_settings.update({
-                'domain': os.environ.get('DOMAIN'),
                 'httponly': envvar_string('COOKIE_HTTPONLY'),
                 'secure': envvar_string('COOKIE_SECURE'),
                 'samesite': envvar_string('COOKIE_SAMESITE')
             })
-        response = make_response(redirect('/dashboards'))
+        protocol = 'https' if os.environ.get('AUTH', 'false') == 'true' else 'http'
+        params = {
+            '_scheme': protocol,
+            '_external': protocol == 'https'
+        }
+        to = url_for('.dashboards', **params)
+        response = make_response(redirect(to))
         if envvar('GRAFANA') == 'true':
             grafana_session = grafana.login_grafana_user(tenant, password)
             if grafana_session:
