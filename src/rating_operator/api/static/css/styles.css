@@ -1,0 +1,110 @@
+.bg {
+    animation:slide 6s ease-in-out infinite alternate;
+    background-image: linear-gradient(-60deg, purple 50%, orange 50%);
+    bottom:0;
+    left:-50%;
+    opacity:.5;
+    position:fixed;
+    right:-50%;
+    top:0;
+    z-index:-1;
+}
+
+.bg2 {
+    animation-direction:alternate-reverse;
+    animation-duration:8s;
+}
+
+.bg3 {
+    animation-duration:10s;
+}
+
+.content {
+    background-color:rgba(255,255,255,.8);
+    border-radius:.25em;
+    box-shadow:0 0 .25em rgba(0,0,0,.25);
+    box-sizing:border-box;
+    left:50%;
+    padding:10vmin;
+    position:fixed;
+    text-align:center;
+    top:50%;
+    transform:translate(-50%, -50%);
+}
+
+
+@keyframes slide {
+    0% {
+        transform:translateX(-25%);
+    }
+    100% {
+        transform:translateX(25%);
+    }
+}
+
+.btn.dashboard {
+    border: none;
+    padding: 20px 26px;
+    text-align: center;
+    font-size: 18px;
+    transition: 0.3s;
+    display: inline-block;
+    text-decoration: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+.box {
+    background: rgba(69, 70, 62, 0.52);
+}
+
+.img-responsive{
+    width: 100%;
+    height: auto;
+}
+
+.img-logo{
+    height: 60px;
+    opacity: 0.8;
+}
+
+.img-logo-login{
+    height: 120px;
+    width: auto;
+}
+
+.brand-navbar:hover .img-logo {
+    opacity: 1!important;
+}
+
+.navbar
+{
+    background-color: rgba(69, 70, 62, 0.52);
+}
+
+.navbar .brand-navbar img:hover
+{
+    opacity: 0.7;
+}
+.navbar ul
+{
+    padding: 0px 30px 0px 0px;
+}
+.navbar ul li a{
+    color: white;
+    margin: 10px 0px 0px 10px;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+.navbar ul li a i{
+    color: white;
+    padding-right:8px ;
+}
+.navbar ul li a .fas{
+    padding-right:5px;
+    padding-left:5px;
+}
+
+.nav-item.submenu:hover .dropdown-menu{
+    display: block!important;
+}

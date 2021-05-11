@@ -86,15 +86,25 @@ def update_namespace(namespace: AnyStr, tenant_id: AnyStr) -> int:
     """
     qry = sa.text("""
         INSERT INTO namespaces(namespace, tenant_id)
-        VALUES (:namespace, :tenant)
+        VALUES (:namespace, :tenant_id)
         ON CONFLICT ON CONSTRAINT namespaces_pkey
         DO UPDATE
-        SET tenant_id = EXCLUDED.tenant_id
+        SET tenant_id = EXCLUDED.tenant_id, namespace = EXCLUDED.namespace;
+        DELETE FROM namespaces WHERE namespace = :namespace
+        AND tenant_id = 'default'
+        AND EXISTS
+        (
+            SELECT namespace
+            FROM namespaces
+            WHERE namespace = :namespace
+            AND tenant_id != 'default'
+        )
+
     """)
 
     params = {
         'namespace': namespace,
-        'tenant': tenant_id
+        'tenant_id': tenant_id
     }
 
     return process_query_get_count(qry, params)

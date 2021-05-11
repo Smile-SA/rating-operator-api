@@ -7,7 +7,7 @@ ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8
 
 RUN apk update \
-    && apk --no-cache add git python3-dev build-base postgresql-libs postgresql-dev \
+    && apk --no-cache add git python3-dev openldap-dev build-base postgresql-libs postgresql-dev \
     && pip3 install wheel==0.34.2
 
 COPY . /app

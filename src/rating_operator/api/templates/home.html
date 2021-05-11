@@ -1,18 +1,85 @@
 <!DOCTYPE html>
 <html>
-<head>    
-        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/styles.css') }}">
-      </head>
-      <body>
-        <div class="h2"> <h1> <p> Welcome to the Rating Operator home page </p> </h1> </div> 
-        <a href="signup">
-        <button class="button2">Create a user account </button>
-         </a>
-         <a href="login">
-        <button class="button">Login to Grafana</button>
-      </a>
-        <a href="password">
-        <button class="button3"> Change login password </button>
-      </a>
-      </body>
+<head>
+ <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static',filename='img/SquareLogo-Rating-Operator2.png') }}"/>
+    <title>HOME- Rating</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/defaultStyle.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/font-awesome.min.css') }}">
+</head>
+<body>
+<div class="bg"></div>
+<div class="bg bg2"></div>
+<div class="bg bg3"></div>
+
+{% if tenant %}
+<header>
+    <nav class="navbar navbar-expand-lg navStyle container-fluid">
+        <a class="brand-navbar" href="/home">
+            <img src="{{ url_for('static',filename='img/rating-operator-logo.png') }}" alt="Responsive image" class="img-logo">
+        </a>
+        <button type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler collapsed"><i class="fa fa-align-justify iconStyle text-white"></i>
+        </button>
+
+        <div class="collapse navbar-collapse " id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item submenu dropdown" >
+                    {% if super_admin == false %}
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       type="button" id="dropdownMenuButton"  aria-expanded="false"><i class="fa fa-user-circle"></i>You are login as {{ tenant }}
+                   
+                    </a>
+                    {% else %} 
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                    type="button" id="dropdownMenuButton"  aria-expanded="false"><i class="fa fa-user-circle"></i>{{ tenant }}
+                
+                    </a>
+                    {% endif %} 
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {% if super_admin == false %}
+                        <li class="nav-item"><a class="nav-link"  href="/password"><i class="fa fa-key"></i>Password</a></li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <form method="POST" action="/logout">
+                                <a type="submit" class="nav-link" href="/logout"><i class="fa fa-power-off"></i>LOGOUT</a>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+    </nav>
+</header>
+{% endif %}
+
+<div class="container">
+    <div class="row d-flex justify-content-center">
+        <div class="col-lg-7">
+            <div class="mt-20 box m-5 p-5">
+                <div class="col-md-12 form-group">
+                    <a href="dashboards" class="btn btn-primary dashboard mb-2"><i class="fa fa-home"></i> Dashboards list</a>
+                </div>
+                 {% if local == true and super_admin == true %}
+              <div class="col-md-12 form-group">
+                    <a href="signup" class="btn btn-primary dashboard"> <i class="fa fa-user-plus"></i> Create a user account</a>
+                </div>
+               {% endif %}
+                {% if local == true and super_admin == false %}
+                <div class="col-md-12 form-group">
+                    <a href="password" class="btn btn-primary dashboard"> <i class="fa fa-key"></i> Change login password</a>
+                </div>
+               {% endif %}
+            
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="{{ url_for('static',filename='js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/main.js') }}"></script>
+</body>
 </html>
+

@@ -9,7 +9,7 @@ from rating_operator.api import db
 from rating_operator.api.endpoints.auth import auth_routes
 from rating_operator.api.endpoints.configs import configs_routes
 from rating_operator.api.endpoints.frames import frames_routes
-from rating_operator.api.endpoints.grafana import create_grafana_user, grafana_routes
+from rating_operator.api.endpoints.grafana import grafana_routes
 from rating_operator.api.endpoints.metrics import metrics_routes
 from rating_operator.api.endpoints.models import models_routes
 from rating_operator.api.endpoints.namespaces import namespaces_routes
@@ -67,6 +67,4 @@ def create_app():
     db.setup_database(app)
     engine.update_postgres_schema()
 
-    if os.environ.get('GRAFANA') == 'true':
-        create_grafana_user(tenant='default', password='default')
     return app
