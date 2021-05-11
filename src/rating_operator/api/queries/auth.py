@@ -26,6 +26,26 @@ def new_tenant(tenant: AnyStr, password: AnyStr) -> int:
     return utils.process_query_get_count(qry, params)
 
 
+def insert_group_tenant(tenant: AnyStr, user_group: AnyStr) -> int:
+    """
+    Insert the tenant  group in database.
+
+    :tenant (AnyStr) A string representing the name of the tenant
+    :admin_user (AnyStr) A string that represents the group of a user (i.e. admin or user)
+
+    Return the number of row updated, 0 in case of fail, 1 otherwise
+    """
+    qry = text("""
+        INSERT INTO group_tenant (tenant_id, user_group)
+        VALUES (:tenant, :user_group)
+    """)
+    params = {
+        'tenant': tenant,
+        'user_group': user_group
+    }
+    return utils.process_query_get_count(qry, params)
+
+
 def update_tenant(tenant: AnyStr, password: AnyStr) -> int:
     """
     Update a tenant in database.
@@ -46,6 +66,22 @@ def update_tenant(tenant: AnyStr, password: AnyStr) -> int:
         'password': password
     }
     return utils.process_query_get_count(qry, params)
+
+
+def get_group_tenant(tenant: AnyStr) -> List[Dict]:
+    """
+    Get the group of the tenant.
+
+    :tenant (AnyStr) A string representing the name of the tenant
+
+    Return the user group in the group_tenant table.
+    """
+    qry = text("""
+        SELECT *
+        FROM group_tenant
+        WHERE tenant_id = :tenant
+    """)
+    return utils.process_query(qry, {'tenant': tenant})
 
 
 def get_tenant(tenant: AnyStr) -> List[Dict]:

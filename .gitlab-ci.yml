@@ -21,7 +21,7 @@ run-tests-37:
   stage: test
   image: python:3.7-alpine
   script:
-  - apk --update --no-cache add python3 python3-dev py-pip build-base postgresql-dev
+  - apk --update --no-cache add python3 python3-dev py-pip openldap-dev build-base postgresql-dev
   - pip install wheel tox
   - tox
 
@@ -29,7 +29,7 @@ run-tests-38:
   stage: test
   image: python:3.8-alpine
   script:
-  - apk --update --no-cache add python3 python3-dev py-pip build-base postgresql-dev
+  - apk --update --no-cache add python3 python3-dev py-pip openldap-dev build-base postgresql-dev
   - pip install wheel tox
   - tox
 

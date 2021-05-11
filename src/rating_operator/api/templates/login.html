@@ -1,59 +1,119 @@
 <!DOCTYPE html>
-<html>
-<head>    
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static',filename='img/SquareLogo-Rating-Operator2.png') }}"/>
+    <title>Login - Rating</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/defaultStyle.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/font-awesome.min.css') }}">
+</head>
+<body>
+    <div class="bg"></div>
+    <div class="bg bg2"></div>
+    <div class="bg bg3"></div>
+    
+{% if tenant %}
+<header>
+    <nav class="navbar navbar-expand-lg navStyle container-fluid">
+        <div class="brand-navbar">
+            <img src="{{ url_for('static',filename='img/rating-operator-logo.png') }}" alt="Responsive image" class="img-logo-login">
+        </div>
+        <button class="navbar-toggler" data-toggle="collapse" data-target="#mainMenu">
+            <span><i class="fa fa-align-right iconStyle"></i></span>
+        </button>
 
-    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static',filename='Circle_Logo-Rating-Operator.png') }}" />
-    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/styles.css') }}">
-      </head>
-      <body>
-        <div class="h1"> <h1> <p> Welcome to the Rating Operator </p> </h1> </div> 
-            <div class="box2">
-                <div class="imgcontainer">
-                    <img src="{{ url_for('static',filename='Circle_Logo-Rating-Operator.png') }}"  alt="Avatar" class="avatar" style="width:200px">
-                   </div>
-            <div class="box">
-        
+        <div class="collapse navbar-collapse " id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item active"><a href="/home" class="nav-link"><i class="fa fa-home"></i>
+                    HOME<span class="sr-only">(current)</span></a></li>
+                <li class="nav-item submenu dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       type="button" id="dropdownMenuButton" aria-expanded="false"><i class="fa fa-user-circle"></i> You
+                        are login as {{ tenant }}
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li class="nav-item"><a class="nav-link" href="/password"><i class="fa fa-key"></i> Password</a>
+                        </li>
+                        <li class="nav-item">
+                            <form method="POST" action="/logout">
+                                <a type="submit" class="nav-link" href="/logout"><i class="fa fa-power-off"></i>
+                                    LOGOUT</a>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
 
-                {% if tenant %}
-                    <h3>
-                        <a>You are login as {{ tenant }}</a>
-                    </h3>
-                    <form method="POST" action="/logout">
-                        <button class="button-logout" type="submit"> LOGOUT </button>
-                    </form>
-                    <form method="POST" action="/dashboards">
-                        <button class="button-return-dash" type="submit"> DASHBOARDS </button>
-                    </form>
-                {% else %}
-                <h3> <p> Login user here! </p> </h3>   
-                     <form method="POST" action="/login_user">
-                            <div class="field">
-                                <div class="control">
-                                    <input
-                                    class="input is-large"
-                                    type="text"
-                                    name="tenant"
-                                    placeholder="Your account name"
-                                    autofocus="">
-                                </div>
-                            </div>
-        
-                            <div class="field">
-                                <div class="control">
-                                    <input
-                                    class="input is-large"
-                                    type="password"
-                                    name="password"
-                                    placeholder="Your Password">
-                                </div>
-                            </div>
-                            <button
-                            class="button-login-home">Login</button>
-                        </form>
-                {% endif %}
+    </nav>
+</header>
+
+<div class="container">
+    <div class="row d-flex justify-content-center">
+        <div class="col-lg-7">
+            <div class="mt-20 box m-5 p-5">
+                <h3>
+                    <p class="text-center text-white mt-2 mb-5"> You are login as {{ tenant }} </p>
+                </h3>
+                <form method="POST" action="/logout" class="form">
+                    <div class="form-group col-md-12 ">
+                        <button type="submit" class=" btn btn-primary dashboard">
+                            <i class="fa fa-power-off"></i> LOGOUT
+                        </button>
                     </div>
+                </form>
+                <form method="POST" action="/home" class="form">
+                    <div class="form-group col-md-12 ">
+                        <button type="submit" class=" btn btn-primary dashboard">
+                            <i class="fa fa-home"></i> HOME
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+ {% else %}
+<div class="container">
+    <div class="row d-flex justify-content-center ">
+        <div class="col-lg-8">
+            <div class="mt-20">
+                <div class="box m-5 p-5">
+                    <p class="text-center">
+                        <a class="brand-navbar" href="/login">
+                            <img src="{{ url_for('static',filename='img/rating-operator-logo.png') }}" alt="Responsive image" class="img-logo-login">
+                        </a>
+                    </p>
+                    <form class="form" method="POST" action="/login_user">
+                        <h3>
+                            <p class="text-center text-white mt-5 mb-5"> Login to access Rating Operator! </p>
+                        </h3>
+                        <div class="col-md-12 form-group">
+                            <input class="form-control" type="text" name="tenant" placeholder="Your user name" autofocus="" required>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <input class="form-control" type="password" name="password" required placeholder="Your Password">
+                        </div>
+                        <div class="col-md-12"> <p class="text-danger" id="message"> {{ message }} </p></div>
+                        <div class="col-md-12 form-group">
+                            <input type="submit" value="Login" class="btn btn btn-primary">
+                        </div>
+                    </form>
                 </div>
             </div>
-            
-       </body>
+        </div>
+    </div>
+</div>
+ {% endif %}
+<script src="{{ url_for('static',filename='js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/tiny-slider.js') }}"></script>
+<script src="{{ url_for('static',filename='js/glightbox.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/aos.js') }}"></script>
+<script src="{{ url_for('static',filename='js/typewritter.js') }}"></script>
+<script src="{{ url_for('static',filename='js/slideNav.js') }}"></script>
+<script src="{{ url_for('static',filename='js/main.js') }}"></script>
+</body>
 </html>
+
+

@@ -1,24 +1,85 @@
 <!DOCTYPE html>
 <html>
-  <head>
-
-    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static',filename='Circle_Logo-Rating-Operator.png') }}" />
-    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/styles.css') }}">
-  </head>
-  <body>
-    <h1> Select a dashboard: </h1>
-    <div id="DashboardList">
-      {% for dashboard in dashboards %}
-      <tr>
-        <a href={{dashboard.url}}>
-          <button class="button-dashboard">{{dashboard.title}}</button>
+<head>
+  <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static',filename='img/SquareLogo-Rating-Operator2.png') }}"/>
+    <title>Dashboards - Rating</title>
+   <link rel="stylesheet" href="{{ url_for('static',filename='css/defaultStyle.css') }}">
+   <link rel="stylesheet" href="{{ url_for('static',filename='css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/styles.css') }}">
+</head>
+{% if tenant %}
+<header>
+    <nav class="navbar navbar-expand-lg navStyle container-fluid">
+        <a class="brand-navbar" href="/home">
+            <img src="{{ url_for('static',filename='img/rating-operator-logo.png') }}" alt="Responsive image" class="img-logo">
         </a>
-      </tr>
-      {% endfor %}
+        <button type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler collapsed"><i class="fa fa-align-justify iconStyle text-white"></i>
+        </button>
+
+        <div class="collapse navbar-collapse " id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item active"><a href="/home" class="nav-link"><i class="fa fa-home"></i>HOME<span class="sr-only">(current)</span></a></li>
+                <li class="nav-item submenu dropdown" >
+                    {% if admin == false %}
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       type="button" id="dropdownMenuButton"  aria-expanded="false"><i class="fa fa-user-circle"></i>You are login as {{ tenant }}
+                   
+                    </a>
+                    {% else %} 
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                    type="button" id="dropdownMenuButton"  aria-expanded="false"><i class="fa fa-user-circle"></i>{{ tenant }}
+                
+                    </a>
+                    {% endif %} 
+                    
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                          <li class="nav-item">
+                            <form method="POST" action="/logout">
+                                <a type="submit" class="nav-link" href="/logout"><i class="fa fa-power-off"></i>LOGOUT</a>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+    </nav>
+</header>
+{% endif %}
+
+<body>
+    <div class="bg"></div>
+<div class="bg bg2"></div>
+<div class="bg bg3"></div>
+
+
+<div class="container">
+    <div class="col-lg-12">
+        <div class="text-lg-right">
+            <h1 class="mb-5 mt-5 dashbord-title text-white">Select a dashboard:</h1>
+        </div>
     </div>
-    <form action="/login" method="POST">
-      <button
-      class="button-login" type="submit">Return to login page </button>
-    </form>
-  </body>
+    <div class="row d-flex justify-content-center">
+         {% for dashboard in dashboards %}
+        <div class="mb-2 col-lg-12">
+            <a href={{dashboard.url}} class="btn btn-primary dashboard">{{dashboard.title}}</a>
+        </div>
+       {% endfor %}
+
+        <div class="col-lg-12">
+            <form class="form mt-5 mb-5" action="/home" method="POST">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <input type="submit" value="Return to home page" class="btn btn-primary reverse">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static',filename='js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/main.js') }}"></script>
+</body>
 </html>
+

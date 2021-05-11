@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 from typing import AnyStr, Dict, List
 
@@ -26,7 +27,7 @@ def format_grafana_frontend_request(url: AnyStr) -> AnyStr:
 
     :url (AnyStr) A string representing the destination of the request.
 
-    Return the formatted URL.
+    Return the formatted url.
     """
     protocol = 'https' if os.environ.get('AUTH', 'false') == 'true' else 'http'
     grafana_frontend_url = envvar('FRONTEND_URL')
@@ -138,6 +139,8 @@ def create_grafana_user(tenant: AnyStr, password: AnyStr):
         'login': tenant,
         'password': password
     }
+    if len(password) < 4:
+        logging.error('The user password must be more than 4 characters in Grafana')
     req = format_grafana_admin_request('/api/admin/users')
     requests.post(req, data=payload)
 
@@ -155,6 +158,24 @@ def update_grafana_password(grafana_id: AnyStr, password: AnyStr):
     try:
         req = format_grafana_admin_request(f'/api/admin/users/{grafana_id}/password')
         requests.put(req, data=payload)
+    except requests.exceptions.RequestException as exc:
+        raise exc
+
+
+def update_grafana_role(grafana_id: AnyStr, role: AnyStr):
+    """
+    Update the Grafana role.
+
+    :grafana_id (AnyStr) the tenant user ID in Grafana
+    :role (AnyStr) the user role expected to changed
+    """
+    org_id = 1
+    payload = {
+        'role': role
+    }
+    try:
+        req = format_grafana_admin_request(f'/api/orgs/{org_id}/users/{grafana_id}')
+        requests.patch(req, data=payload)
     except requests.exceptions.RequestException as exc:
         raise exc
 

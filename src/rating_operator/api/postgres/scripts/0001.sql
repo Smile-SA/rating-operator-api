@@ -2,7 +2,7 @@
 CREATE TABLE namespaces (
   namespace   VARCHAR(253) NOT NULL,
   tenant_id   VARCHAR(253) NOT NULL,
-  PRIMARY KEY (namespace)
+  PRIMARY KEY (namespace, tenant_id)
 );
 
 CREATE TABLE namespace_status (
@@ -46,6 +46,12 @@ CREATE TABLE frame_status (
 CREATE TABLE users (
   tenant_id   VARCHAR(253) NOT NULL,
   password    VARCHAR(253) NOT NULL,
+  PRIMARY KEY (tenant_id)
+);
+
+CREATE TABLE group_tenant(
+  tenant_id   VARCHAR(253) NOT NULL,
+  user_group  VARCHAR(253) NOT NULL,  
   PRIMARY KEY (tenant_id)
 );
 

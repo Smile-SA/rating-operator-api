@@ -1,9 +1,9 @@
 import datetime
-import os
 import re
 from typing import AnyStr, Callable, Dict
 
 from rating_operator.api.db import db
+from rating_operator.api.endpoints import auth as auth
 
 import sqlalchemy as sa
 
@@ -173,8 +173,11 @@ def multi_tenant(func: Callable) -> Callable:
         Return the wrapped function
         """
         qry = 'SELECT namespace FROM namespaces'
-        admin = os.environ.get('ADMIN_ACCOUNT', 'admin')
-        if kwargs['tenant_id'] != admin:
+        tenant = kwargs['tenant_id']
+        admin_user = False
+        if tenant != 'default':
+            admin_user = auth.check_admin(tenant)
+        if admin_user is False:
             qry = sa.text(qry + ' WHERE tenant_id = :tenant_id').params(
                 tenant_id=kwargs['tenant_id'])
         kwargs['namespaces'] = [
