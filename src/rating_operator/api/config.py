@@ -57,11 +57,11 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JSON_ADD_STATUS = False
     JSON_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
-    # if envvar_string('AUTH') == 'true':
-    SESSION_COOKIE_DOMAIN = os.environ.get('DOMAIN')
-    SESSION_COOKIE_SECURE = envvar_string('COOKIE_SECURE')
-    SESSION_COOKIE_SAMESITE = envvar_string('COOKIE_SAMESITE')
-    SESSION_COOKIE_HTTPONLY = envvar_string('COOKIE_HTTPONLY')
+    if envvar_string('AUTH') == 'true':
+        SESSION_COOKIE_DOMAIN = os.environ.get('DOMAIN')
+        SESSION_COOKIE_SECURE = envvar_string('COOKIE_SECURE')
+        SESSION_COOKIE_SAMESITE = envvar_string('COOKIE_SAMESITE')
+        SESSION_COOKIE_HTTPONLY = envvar_string('COOKIE_HTTPONLY')
 
 
 class Lockfile():
