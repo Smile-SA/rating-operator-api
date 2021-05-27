@@ -43,6 +43,7 @@ body {
   font-weight: 400;
   line-height: 1.5;
   color: white;
+
   background-color: #fff;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent
@@ -2555,6 +2556,7 @@ textarea.form-control-lg {
   line-height: 1.5;
   color: #212529;
   vertical-align: middle;
+  min-height: 100%;
   background-color: #fff;
   background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxNiAxNic+PHBhdGggZmlsbD0nbm9uZScgc3Ryb2tlPScjMzQzYTQwJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnIHN0cm9rZS13aWR0aD0nMicgZD0nTTIgNWw2IDYgNi02Jy8+PC9zdmc+);
   background-repeat: no-repeat;
@@ -3874,27 +3876,30 @@ textarea.form-control-lg {
 }
 
 .dropdown-menu {
+  margin: 0px!important;
+  padding: 0px!important;
   position: absolute;
   top: 95%;
-  left: 0;
+  left: 10px;
   z-index: 1000;
   display: none;
-  min-width: 10rem;
-  padding: .5rem 0;
-  margin: .125rem 0 0;
+  padding: .4rem 0;
   font-size: 1rem;
   color: whitesmoke;
   text-align: left;
   list-style: none;
-  background-color: rgba(69, 70, 62, 0.52);;
+  background-color: rgba(69, 70, 62, 0.85);
   background-clip: padding-box;
   border: 1px solid rgba(0, 0, 0, .15);
   border-radius: .25rem
 }
 
-
+.dropdown-menu li a{
+  margin: inherit!important;
+}
 .dropdown-menu li:hover{
-  background-color: rgba(69, 70, 62, 0.85);
+  color:white;
+  text-decoration: underline;
 }
 
 .dropdown-menu[style] {
@@ -13284,10 +13289,20 @@ textarea.form-control {
 }
 
 .ftco-footer {
-  padding: 5em 0 0;
-  background: #eee
+  padding: 1em 0 0;
+  background: transparent;
 }
 
+.ftco-footer p{ 
+  font-size: 12px;
+}
+
+footer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+}
 .ftco-footer .logo a {
   position: relative;
   text-decoration: none;
@@ -13295,8 +13310,8 @@ textarea.form-control {
   font-size: 22px
 }
 
-.ftco-footer .logo a span {
-  color: rgba(69, 70, 62, 0.52)
+.ftco-footer .logo a span,.ftco-footer {
+  color: white
 }
 
 .ftco-footer .ftco-footer-widget h2, .ftco-footer .ftco-footer-widget .h2 {
@@ -14144,15 +14159,6 @@ textarea.form-control {
 .mt-0{
   margin-top: 0;
 }
-
-
-
-
-
-
-
-
-
 
 .progress-circle .progress {
   width: 80px;

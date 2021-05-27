@@ -53,30 +53,37 @@
 </header>
 {% endif %}
 
+
 <div class="container">
-    <div class="row d-flex justify-content-center">
-        <div class="col-lg-7">
-            <div class="mt-20 box m-5 p-5">
-                <div class="col-md-12 form-group">
-                    <a href="dashboards" class="btn btn-primary dashboard mb-2"><i class="fa fa-home"></i> Dashboards list</a>
-                </div>
-                 {% if local == true and super_admin == true %}
-              <div class="col-md-12 form-group">
-                    <a href="signup" class="btn btn-primary dashboard"> <i class="fa fa-user-plus"></i> Create a user account</a>
-                </div>
-               {% endif %}
-                {% if local == true and super_admin == false %}
-                <div class="col-md-12 form-group">
-                    <a href="password" class="btn btn-primary dashboard"> <i class="fa fa-key"></i> Change login password</a>
-                </div>
-               {% endif %}
-            
-            </div>
+    <div class="col-lg-12">
+        <div class="text-lg-right">
+            <h1 class="mb-5 mt-5 dashbord-title text-white">Select an option: </h1>
         </div>
     </div>
+    <div class="row d-flex justify-content-center">
+        
+       <div class="col-md-12 mb-2">
+        <a href="dashboards" class="btn btn-primary dashboard "><i class="fa fa-home"></i> Dashboards list</a>
+        </div>
+        {% if local == true and super_admin == true %}
+        <div class="col-md-12 mb-2">
+                <a href="signup" class="btn btn-primary dashboard"> <i class="fa fa-user-plus"></i> Create a user account</a>
+            </div>
+        {% endif %}
+            {% if local == true and super_admin == false %}
+            <div class="col-md-12 mb-2">
+                <a href="password" class="btn btn-primary dashboard"> <i class="fa fa-key"></i> Change login password</a>
+            </div>
+        {% endif %}
+
+       
+    </div>
 </div>
-
-
+<footer class="ftco-footer">
+    <div class="container-fluid ">
+        <p> Rating Operator {{ version }} - {{ dist }}</p>
+    </div>
+</footer>
 
 <script src="{{ url_for('static',filename='js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ url_for('static',filename='js/main.js') }}"></script>

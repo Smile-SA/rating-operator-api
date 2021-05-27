@@ -1,5 +1,6 @@
 import os
 from base64 import b64decode
+from functools import wraps
 from typing import Callable
 
 from flask import request
@@ -66,6 +67,7 @@ def require_admin(func: Callable) -> Callable:
 
     Return a wrapper to execute the decoration
     """
+    @wraps(func)
     def wrapper(**kwargs: dict) -> Callable:
         """
         Execute the verification of the admin token.
@@ -79,7 +81,6 @@ def require_admin(func: Callable) -> Callable:
         if token == admin_api_key:
             return func(**kwargs)
         raise InvalidToken('Internal token unrecognized')
-    wrapper.__name__ = func.__name__
     return wrapper
 
 
