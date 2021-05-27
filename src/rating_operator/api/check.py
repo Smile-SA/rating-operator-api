@@ -1,5 +1,6 @@
 import datetime
 import re
+from functools import wraps
 from typing import AnyStr, Callable, Dict
 
 from rating_operator.api.db import db
@@ -57,6 +58,7 @@ def date_checker_start_end(func: Callable) -> Callable:
 
     Return the wrapper function executing the verification
     """
+    @wraps(func)
     def wrapper(**kwargs: Dict) -> Callable:
         """
         Assert that the date is valid, before calling the decorated function.
@@ -70,7 +72,6 @@ def date_checker_start_end(func: Callable) -> Callable:
             raise InvalidDateError(
                 'wrong date formatting, cannot create datetime object')
         return func(**kwargs)
-    wrapper.__name__ = func.__name__
     return wrapper
 
 
@@ -140,6 +141,7 @@ def assert_url_params(func: Callable) -> Callable:
 
     Return a wrapper function to execute the assertion
     """
+    @wraps(func)
     def wrapper(**kwargs: Dict):
         """
         Assert that the parameters matches a simple verification regex.
@@ -152,7 +154,6 @@ def assert_url_params(func: Callable) -> Callable:
         if regex.match(kwargs['table']):
             return func(**kwargs)
         raise TableNameBadFormat(f'Table name {kwargs["table"]} unproperly formatted.')
-    wrapper.__name__ = func.__name__
     return wrapper
 
 
@@ -164,6 +165,7 @@ def multi_tenant(func: Callable) -> Callable:
 
     Return a wrapper function to execute the constraint
     """
+    @wraps(func)
     def wrapper(**kwargs: Dict):
         """
         Constraint the function execution according to the user.
@@ -186,5 +188,4 @@ def multi_tenant(func: Callable) -> Callable:
         if 'unspecified' not in kwargs['namespaces'] and len(kwargs['namespaces']) > 0:
             kwargs['namespaces'].append('unspecified')
         return func(**kwargs)
-    wrapper.__name__ = func.__name__
     return wrapper

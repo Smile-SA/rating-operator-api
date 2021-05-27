@@ -108,3 +108,6 @@
 .nav-item.submenu:hover .dropdown-menu{
     display: block!important;
 }
+.dashbord-title{
+   font-family: verdana;
+}

@@ -1,7 +1,8 @@
 import logging
 import os
 import time
-from typing import AnyStr, Callable, Dict, Text
+from functools import wraps
+from typing import Any, AnyStr, Callable, Dict, Text
 
 from flask import Blueprint, abort, jsonify, make_response, redirect
 from flask import Response, render_template, request, session
@@ -42,6 +43,7 @@ def with_session(func: Callable) -> Response:
 
     Return a wrapper function.
     """
+    @wraps(func)
     def wrapper(**kwargs: Dict) -> Callable:
         """
         Verify and return the tenant session.
@@ -62,11 +64,10 @@ def with_session(func: Callable) -> Response:
         response.headers['Access-Control-Allow-Origin'] = allow_origin()
         response.headers['Access-Control-Allow-Credentials'] = 'true'
         return response
-    wrapper.__name__ = func.__name__
     return wrapper
 
 
-def logged_in(func: Callable) -> Response:
+def logged_in(func: Callable, **kwargs: Dict) -> Response:
     """
     Verify and return the tenant session.
 
@@ -74,7 +75,8 @@ def logged_in(func: Callable) -> Response:
 
     Return a wrapper function.
     """
-    def wrapper(**kwargs: Dict) -> Callable:
+    @wraps(func)
+    def wrapper(**kwargs) -> Callable:
         """
         Verify and return the tenant session.
 
@@ -84,11 +86,10 @@ def logged_in(func: Callable) -> Response:
         """
         tenant = session.get('tenant')
         if tenant:
-            response = func()
+            response = func(**kwargs)
         else:
             response = make_response(redirect('/login'))
         return response
-    wrapper.__name__ = func.__name__
     return wrapper
 
 
@@ -100,6 +101,7 @@ def logged_in_admin(func: Callable) -> Response:
 
     Return a wrapper function.
     """
+    @wraps(func)
     def wrapper(**kwargs: Dict) -> Callable:
         """
         Verify if super-admin and return the tenant session.
@@ -110,217 +112,11 @@ def logged_in_admin(func: Callable) -> Response:
         """
         tenant = session.get('tenant')
         if tenant == envvar('ADMIN_ACCOUNT'):
-            response = func()
+            response = func(**kwargs)
         else:
             response = make_response(redirect('/login'))
         return response
-    wrapper.__name__ = func.__name__
     return wrapper
-
-
-def keycloak_client(**kwargs: Dict) -> KeycloakOpenID:
-    """
-    Create an authenticated keycloak client.
-
-    :kwargs (Dict) A directory contaning the keycloak client authentication credentials
-
-    Return the KeycloakOpenID object.
-    """
-    config = {}
-    if kwargs:
-        config.update(kwargs)
-    else:
-        config.update({
-            'server_url': envvar('KEYCLOAK_URL'),
-            'client_id': envvar('KEYCLOAK_CLIENT_ID'),
-            'realm_name': envvar('KEYCLOAK_REALM'),
-            'client_secret_key': envvar('KEYCLOAK_SECRET_KEY')
-        })
-    return KeycloakOpenID(**config)
-
-
-def verify_user_local(tenant: AnyStr, password: AnyStr) -> bool:
-    """
-    Verify a user in local database.
-
-    :tenant (AnyStr) the user username
-    :password (AnyStr) the user password
-
-    Return a boolean describing the success of the user authentication.
-    """
-    if tenant == envvar('ADMIN_ACCOUNT'):
-        if password == envvar('GRAFANA_ADMIN_PASSWORD'):
-            return True
-        else:
-            return False
-    else:
-        results = query.get_tenant_id(tenant)
-        if not results or not check_encrypted_password(password, results[0]['password']):
-            return False
-        else:
-            return True
-
-
-def initialize_ldap_connection() -> Dict:
-    """Initialize the ldap connection."""
-    l_con = None
-    try:
-        l_con = ldap.initialize(envvar('LDAP_URL'))
-    except ldap.LDAPError:
-        logging.error('Wrong LDAP URL')
-    finally:
-        return l_con
-
-
-def get_tenant_group_from_keycloak(token: AnyStr):
-    """Get the group of the tenant "admin" or "user".
-
-    :token (AnyStr) the user keycloak token
-    """
-    tenant_info = keycloak_client().userinfo(token['access_token'])
-    return tenant_info.get('group', '')
-
-
-def verify_admin_keycloak() -> bool:
-    """Verify if a user is admin."""
-    token = session.get('token')
-    group = get_tenant_group_from_keycloak(token)
-    if group == 'admin':
-        return True
-    else:
-        return False
-
-
-def check_admin(tenant: AnyStr) -> bool:
-    """
-    Check if a user is admin.
-
-    tenant: (AnyStr) the username
-
-    Return a boolean to express if a user is admin or no.
-    """
-    if tenant == envvar('ADMIN_ACCOUNT'):
-        return True
-    else:
-        if envvar('KEYCLOAK') == 'true':
-            return verify_admin_keycloak()
-        elif envvar('LDAP') == 'true':
-            return verify_admin_ldap(tenant)
-        else:
-            res = query.get_group_tenant(tenant)
-            if res[0]['user_group'] == 'admin':
-                return True
-            else:
-                return False
-
-
-def verify_admin_ldap(tenant) -> bool:
-    """
-    Verify if a user is admin.
-
-    :tenant (AnyStr) the tenant username
-    """
-    l_con = initialize_ldap_connection()
-    l_schema = envvar_string('LDAP_SCHEMA')
-    l_schema_login = l_schema.split(',')
-    l_password = envvar_string('LDAP_ADMIN_PASSWORD')
-    result = None
-    try:
-        l_con.simple_bind_s('cn=admin,{},{}'.format(l_schema_login[1],
-                            l_schema_login[2]), l_password)
-        result = l_con.compare_s('cn={},{}'.format(tenant, l_schema),
-                                 'sn', 'admin')
-    except ldap.NO_SUCH_OBJECT:
-        logging.error(f'User does not exist {tenant}')
-    finally:
-        return result
-
-
-def verify_user_ldap(tenant: AnyStr, password: AnyStr) -> bool:
-    """
-    Verify a user using LDAP schema.
-
-    :tenant (AnyStr) the user username
-    :password (AnyStr) the user password
-
-    Return a boolean describing the success of the user authentication.
-    """
-    l_con = initialize_ldap_connection()
-    l_schema = envvar_string('LDAP_SCHEMA')
-    l_schema_login = l_schema.split(',')
-    l_password = envvar_string('LDAP_ADMIN_PASSWORD')
-    result = None
-    try:
-        if tenant == envvar('ADMIN_ACCOUNT'):
-            if password == envvar('GRAFANA_ADMIN_PASSWORD'):
-                result = True
-            else:
-                result = False
-        else:
-            l_con.simple_bind_s('cn=admin,{},{}'.format(l_schema_login[1],
-                                l_schema_login[2]), l_password)
-            result = l_con.compare_s('cn={},{}'.format(tenant, l_schema),
-                                     'userPassword', password)
-        if result:
-            grafana.create_grafana_user(tenant, password)
-    except ldap.NO_SUCH_OBJECT:
-        logging.error(f'User does not exist {tenant}')
-    finally:
-        return result
-
-
-def get_keycloak_user_token(tenant: AnyStr, password: AnyStr) -> Dict:
-    """
-    Get the token of the user authentication in Keycloak.
-
-    :tenant (AnyStr) the user username
-    :password (AnyStr) the user password
-
-    Return the keycloak user token if valid credentials.
-    """
-    keycloak_openid = keycloak_client()
-    token = None
-    try:
-        token = keycloak_openid.token(tenant, password)
-        grafana.create_grafana_user(tenant, password)
-    except exceptions.KeycloakAuthenticationError or exceptions.KeycloakGetError:
-        logging.error(f'Authentication error for user {tenant}')
-    finally:
-        return token
-
-
-def verify_user_keycloak(tenant: AnyStr, password: AnyStr) -> bool:
-    """
-    Verify if a user token is not empty.
-
-    :tenant (AnyStr) the user username
-    :password (AnyStr) the user password
-
-    Return a boolean describing the success of the user verification in keycloak.
-    """
-    if tenant == envvar('ADMIN_ACCOUNT'):
-        if password == envvar('GRAFANA_ADMIN_PASSWORD'):
-            return True
-        else:
-            return False
-    else:
-        return get_keycloak_user_token(tenant, password)
-
-
-def verify_user(tenant: AnyStr, password: AnyStr) -> bool or Dict:
-    """
-    Verify the user through keycloak if configured, or locally.
-
-    :tenant (AnyStr) the user username
-    :password (AnyStr) the user password
-
-    Return a boolean describing the success of the user verification.
-    """
-    if envvar('KEYCLOAK') == 'true':
-        return verify_user_keycloak(tenant, password)
-    if envvar('LDAP') == 'true':
-        return verify_user_ldap(tenant, password)
-    return verify_user_local(tenant, password)
 
 
 def encrypt_password(password: AnyStr) -> AnyStr:
@@ -354,21 +150,38 @@ def authenticated_user(request: request) -> AnyStr:
 
     Return the username if a user is authenticated or empty string if not.
     """
-    # token = session.get('token')
+    token = session.get('token')
     tenant = session.get('tenant')
     # if tenant and query.get_tenant_id(tenant) or token:
-    if tenant:
+    if tenant or token:
         return tenant
     # Here default implicitly means public
     # e.g. namespaces not declared with tenant=whatever
     return 'default'
 
 
+def check_admin(tenant: AnyStr) -> bool:
+    """
+    Check if a user is admin.
+
+    tenant: (AnyStr) the username
+
+    Return a boolean to express if a user is admin or no.
+    """
+    if tenant == envvar('ADMIN_ACCOUNT'):
+        return True
+    else:
+        return auth.verify_group_admin(tenant=tenant)
+
+
 @auth_routes.route('/login', methods=['POST', 'GET'])
 def login() -> Text:
     """Return the html template for the /login of rating-operator."""
     tenant = session.get('tenant')
-    return render_template('login.html', tenant=tenant)
+    version = envvar_string('VERSION')
+    distribution = envvar_string('DISTRIBUTION')
+    return render_template('login.html', tenant=tenant,
+                           version=version, dist=distribution)
 
 
 @auth_routes.route('/signup')
@@ -376,10 +189,11 @@ def login() -> Text:
 def signup() -> Text:
     """Return the html template for the /signup of rating-operator."""
     tenant = session.get('tenant')
-    admin = False
-    if tenant == os.environ.get('ADMIN_ACCOUNT'):
-        admin = True
-    return render_template('signup.html', tenant=tenant, admin=admin)
+    admin = os.environ.get('ADMIN_ACCOUNT')
+    version = envvar_string('VERSION')
+    distribution = envvar_string('DISTRIBUTION')
+    return render_template('signup.html', tenant=tenant, admin=admin,
+                           version=version, dist=distribution)
 
 
 @auth_routes.route('/password')
@@ -390,24 +204,30 @@ def password() -> Text:
     admin = False
     if tenant == os.environ.get('ADMIN_ACCOUNT'):
         admin = True
-    return render_template('password.html', tenant=tenant, admin=admin)
+    version = envvar_string('VERSION')
+    distribution = envvar_string('DISTRIBUTION')
+    return render_template('password.html', tenant=tenant, admin=admin,
+                           version=version, dist=distribution)
 
 
 @auth_routes.route('/home', methods=['POST', 'GET'])
 @logged_in
 def home() -> Text:
+    """Return the html template for the /home of rating-operator."""
     tenant = session.get('tenant')
     if not tenant:
         return render_template('login.html', tenant=tenant)
     else:
         super_admin = False
         local = False
-        if envvar('LDAP') == 'false' and envvar('KEYCLOAK') == 'false':
+        if not hasattr(auth, 'instance'):
             local = True
         if tenant == os.environ.get('ADMIN_ACCOUNT'):
             super_admin = True
-        return render_template('home.html',
-                               super_admin=super_admin, local=local, tenant=tenant)
+        version = envvar_string('VERSION')
+        distribution = envvar_string('DISTRIBUTION')
+        return render_template('home.html', super_admin=super_admin, local=local,
+                               tenant=tenant, version=version, dist=distribution)
 
 
 @auth_routes.route('/dashboards', methods=['POST', 'GET'])
@@ -420,11 +240,13 @@ def dashboards() -> Text:
     if tenant == os.environ.get('ADMIN_ACCOUNT'):
         admin = True
     else:
-        admin = check_admin(tenant)
+        admin = auth.verify_group_admin(tenant=tenant)
     # Get dashboard list
     dashboards_url = grafana.get_grafana_dashboards_url(admin)
-    return render_template('dashboards.html',
-                           dashboards=dashboards_url, tenant=tenant, admin=admin)
+    version = envvar_string('VERSION')
+    distribution = envvar_string('DISTRIBUTION')
+    return render_template('dashboards.html', dashboards=dashboards_url,
+                           tenant=tenant, admin=admin, version=version, dist=distribution)
 
 
 def update_tenant_namespaces(tenant: AnyStr, namespaces: AnyStr):
@@ -454,39 +276,6 @@ def update_tenant_namespaces(tenant: AnyStr, namespaces: AnyStr):
             api.create_namespace(ns)
 
 
-def get_namespaces_from_keycloak(token) -> AnyStr:
-    """
-    Get the user namespaces attribute from the token.
-
-    :token (AnyStr) the user keycloak token
-
-    Return the user namespaces.
-    """
-    tenant_info = keycloak_client().userinfo(token['access_token'])
-    return tenant_info.get('namespaces', '')
-
-
-def get_namespaces_from_ldap(tenant: AnyStr) -> AnyStr:
-    """
-    Get the user namespaces attribute from ldap.
-
-    :tenant (AnyStr) the user username
-
-    Return the user namespaces.
-    """
-    l_con = initialize_ldap_connection()
-    l_schema = envvar_string('LDAP_SCHEMA')
-    l_schema_login = l_schema.split(',')
-    l_password = envvar_string('LDAP_ADMIN_PASSWORD')
-    l_con.simple_bind_s('cn=admin,{},{}'.format(l_schema_login[1], l_schema_login[2]),
-                        l_password)
-    namespaces = l_con.search_s('{}'.format(l_schema), ldap.SCOPE_SUBTREE,
-                                '(cn={})'.format(tenant), ['uid'])
-    result_namespaces = namespaces[0][1]['uid'][0]
-    result_namespaces_string = result_namespaces.decode('utf-8')
-    return result_namespaces_string
-
-
 @auth_routes.route('/login_user', methods=['POST'])
 def login_user():
     """
@@ -496,7 +285,8 @@ def login_user():
     """
     tenant = request.form.get('tenant')
     password = request.form.get('password')
-    verified = verify_user(tenant, password)
+    verified = auth.verify(tenant, password)
+
     if verified:
         logging.info('User logged')
         session.update({
@@ -504,20 +294,18 @@ def login_user():
             'timestamp': time.time(),
         })
         cookie_settings = {}
-        if envvar('LDAP') == 'true' and tenant != envvar_string('ADMIN_ACCOUNT'):
-            namespaces = get_namespaces_from_ldap(tenant)
+        if tenant != envvar_string('ADMIN_ACCOUNT') and hasattr(auth, 'instance'):
+            namespaces = auth.get_namespace()
             update_tenant_namespaces(tenant, namespaces)
-        if envvar('KEYCLOAK') == 'true' and tenant != envvar_string('ADMIN_ACCOUNT'):
-            session.update({'token': verified})
-            namespaces = get_namespaces_from_keycloak(verified)
-            update_tenant_namespaces(tenant, namespaces)
-            cookie_settings.update({
-                'httponly': envvar_string('COOKIE_HTTPONLY'),
-                'secure': envvar_string('COOKIE_SECURE'),
-                'samesite': envvar_string('COOKIE_SAMESITE')
-            })
-            if os.environ.get('AUTH') == 'true':
-                cookie_settings.update({'domain': os.environ.get('DOMAIN')})
+            if isinstance(auth.instance, Keycloak):
+                session.update({'token': verified})
+                cookie_settings.update({
+                    'httponly': envvar_string('COOKIE_HTTPONLY'),
+                    'secure': envvar_string('COOKIE_SECURE'),
+                    'samesite': envvar_string('COOKIE_SAMESITE')
+                })
+                if os.environ.get('AUTH') == 'true':
+                    cookie_settings.update({'domain': os.environ.get('DOMAIN')})
         response = make_response(redirect('/home'))
         # protocol = 'https' if os.environ.get('AUTH', 'false') == 'true' else 'http'
         # params = {
@@ -607,7 +395,7 @@ def logout_user() -> Response:
         else:
             resp.delete_cookie('grafana_session')
     if session.get('token') is not None:
-        keycloak_client().logout(session['token']['refresh_token'])
+        auth.client().logout(session['token']['refresh_token'])
     session.clear()
     return resp
 
@@ -626,7 +414,7 @@ def change_password(tenant: AnyStr) -> Response:
     if tenant == '' or old == new:
         return make_response(render_template('password.html',
                                              message='New and old password are similar'))
-    elif verify_user(tenant, old):
+    elif auth.verify(tenant, old):
         if envvar('GRAFANA') == 'true':
             grafana.update_grafana_password(grafana.get_grafana_user(tenant), password)
         query.update_tenant(tenant, encrypt_password(new))
@@ -635,3 +423,274 @@ def change_password(tenant: AnyStr) -> Response:
     else:
         return make_response(render_template('password.html',
                                              message='unrecognized user / password'))
+
+
+class Keycloak:
+    """Keycloak authentication class."""
+
+    def get_keycloak_user_token(self, tenant: AnyStr, password: AnyStr) -> Dict:
+        """
+        Get the token of the user authentication in Keycloak.
+
+        :tenant (AnyStr) the user username
+        :password (AnyStr) the user password
+
+        Return the keycloak user token if valid credentials.
+        """
+        keycloak_openid = self.client
+        token = None
+        try:
+            token = keycloak_openid.token(tenant, password)
+            if envvar('GRAFANA') == 'true':
+                user_grafana = grafana.get_grafana_user(tenant)
+                if not user_grafana:
+                    grafana.create_grafana_user(tenant, password)
+                if self.verify_group_admin():
+                    grafana.update_grafana_role(user_grafana, 'Editor')
+        except exceptions.KeycloakAuthenticationError or exceptions.KeycloakGetError:
+            logging.error(f'Authentication error for user {tenant}')
+        finally:
+            return token
+
+    def client(self, **kwargs: Dict) -> KeycloakOpenID:
+        """
+        Create an authenticated keycloak client.
+
+        :kwargs (Dict) A directory contaning
+        the keycloak client authentication credentials
+
+        Return the KeycloakOpenID object.
+        """
+        config = {}
+        if kwargs:
+            config.update(kwargs)
+        else:
+            config.update({
+                'server_url': envvar('KEYCLOAK_URL'),
+                'client_id': envvar('KEYCLOAK_CLIENT_ID'),
+                'realm_name': envvar('KEYCLOAK_REALM'),
+                'client_secret_key': envvar('KEYCLOAK_SECRET_KEY')
+            })
+        self.client = KeycloakOpenID(**config)
+        return self.client
+
+    def verify(self, tenant: AnyStr, password: AnyStr) -> bool:
+        """
+        Verify if a user token is not empty.
+
+        :tenant (AnyStr) the user username
+        :password (AnyStr) the user password
+
+        Return a boolean describing the success of the user verification in keycloak.
+        """
+        if tenant == envvar('ADMIN_ACCOUNT'):
+            if password == envvar('GRAFANA_ADMIN_PASSWORD'):
+                return True
+            else:
+                return False
+        else:
+            return self.get_token(tenant, password)
+
+    def verify_group_admin(self, **kwargs: Dict) -> bool:
+        """
+        Check if a user is admin.
+
+        Return a boolean to express if a user is admin or no.
+        """
+        tenant_info = self.get_infos()
+        group = tenant_info.get('group', '')
+        if group == 'admin':
+            return True
+        else:
+            return False
+
+    def get_infos(self) -> Any:
+        """Verify users information."""
+        return self.client.userinfo(self.token['access_token'])
+
+    def get_token(self, tenant: AnyStr, password: AnyStr) -> Dict:
+        """
+        Get the token of the user authentication in Keycloak.
+
+        :tenant (AnyStr) the user username
+        :password (AnyStr) the user password
+        """
+        self.token = self.get_keycloak_user_token(tenant, password)
+        return self.token
+
+    def get_namespace(self, **kwargs: Dict) -> AnyStr:
+        """
+        Get the user namespaces attribute from the token.
+
+        Return the user namespaces.
+        """
+        tenant_info = self.get_infos()
+        return tenant_info.get('namespaces', '')
+
+
+class LDAP:
+    """LDAP authentication class."""
+
+    def initialize_ldap_connection(self) -> Dict:
+        """Initialize the ldap connection."""
+        l_con = None
+        try:
+            l_con = ldap.initialize(envvar('LDAP_URL'))
+        except ldap.LDAPError:
+            logging.error('Wrong LDAP URL')
+        finally:
+            return l_con
+
+    def __init__(self) -> None:
+        self.l_schema = envvar_string('LDAP_SCHEMA')
+        self.l_schema_login = self.l_schema.split(',')
+        self.l_password = envvar_string('LDAP_ADMIN_PASSWORD')
+
+    def client(self, **kwargs: Dict) -> Dict:
+        """
+        Create a ldap client.
+
+        :kwargs (Dict) A directory contaning
+        the keycloak client authentication credentials
+
+        Return the KeycloakOpenID object.
+        """
+        l_con = self.initialize_ldap_connection()
+        l_con.simple_bind_s('cn=admin,{},{}'.format(self.l_schema_login[1],
+                            self.l_schema_login[2]), self.l_password)
+        self.client = l_con
+        return self.client
+
+    def verify(self, tenant: AnyStr, password: AnyStr) -> bool:
+        """
+        Verify a user using LDAP schema.
+
+        :tenant (AnyStr) the user username
+        :password (AnyStr) the user password
+
+        Return a boolean describing the success of the user authentication.
+        """
+        result = None
+        try:
+            if tenant == envvar('ADMIN_ACCOUNT'):
+                if password == envvar('GRAFANA_ADMIN_PASSWORD'):
+                    result = True
+                else:
+                    result = False
+            else:
+                result = self.client.compare_s('cn={},{}'.format(tenant, self.l_schema),
+                                               'userPassword', password)
+                if result and envvar('GRAFANA') == 'true':
+                    user_grafana = grafana.get_grafana_user(tenant)
+                    if not user_grafana:
+                        grafana.create_grafana_user(tenant, password)
+                    if self.verify_group_admin():
+                        grafana.update_grafana_role(user_grafana, 'Editor')
+        except ldap.NO_SUCH_OBJECT:
+            logging.error(f'User does not exist {tenant}')
+        finally:
+            return result
+
+    def verify_group_admin(self, **kwargs: Dict) -> bool:
+        """
+        Verify if a user is admin.
+
+        :kwargs (Dict) contains username
+
+        Return a boolean describing if the user is in admin group.
+        """
+        result = None
+        if kwargs['tenant']:
+            tenant = kwargs['tenant']
+        try:
+            result = self.client.compare_s('cn={},{}'.format(tenant, self.l_schema),
+                                           'sn', 'admin')
+        except ldap.NO_SUCH_OBJECT:
+            logging.error(f'User does not exist {tenant}')
+        finally:
+            return result
+
+    def get_namespace(self, **kwargs: Dict) -> AnyStr:
+        """
+        Get the user namespaces attribute from ldap.
+
+        :kwargs (Dict) contains username
+
+        Return the user namespaces.
+        """
+        if kwargs['tenant']:
+            tenant = kwargs['tenant']
+        namespaces = self.client.search_s('{}'.format(self.l_schema), ldap.SCOPE_SUBTREE,
+                                          '(cn={})'.format(tenant), ['uid'])
+        result_namespaces = namespaces[0][1]['uid'][0]
+        result_namespaces_string = result_namespaces.decode('utf-8')
+        return result_namespaces_string
+
+
+class Authenticator:
+    """Authenticate and communicate with the configured user management system."""
+
+    def client(self, **kwargs: Dict):
+        """Return a local client."""
+        pass
+
+    def verify(self, tenant: AnyStr, password: AnyStr) -> bool:
+        """
+        Verify a user in local database.
+
+        :tenant (AnyStr) the user username
+        :password (AnyStr) the user password
+
+        Return a boolean describing the success of the user authentication.
+        """
+        if tenant == envvar('ADMIN_ACCOUNT'):
+            if password == envvar('GRAFANA_ADMIN_PASSWORD'):
+                return True
+            else:
+                return False
+        else:
+            results = query.get_tenant_id(tenant)
+            if not results or \
+               not check_encrypted_password(password, results[0]['password']):
+                return False
+            else:
+                return True
+
+    def get_namespace(self, **kwargs: Dict):
+        """Get the user namespaces attribute from local database."""
+
+    def verify_group_admin(self, **kwargs) -> bool:
+        """
+        Verify if a user is admin.
+
+        :kwargs (Dict) contains username
+
+        Return a boolean describing if the user is in admin group.
+        """
+        if kwargs['tenant']:
+            tenant = kwargs['tenant']
+        res = query.get_group_tenant(tenant)
+        if res[0]['user_group'] == 'admin':
+            return True
+        else:
+            return False
+
+    def __init__(self, method: AnyStr = None, **kwargs):
+        try:
+            instance = {
+                'ldap': LDAP,
+                'keycloak': Keycloak
+            }[method]()
+        except KeyError:
+            return
+
+        self.instance = instance
+        self.client = instance.client
+        self.verify = instance.verify
+        self.get_namespace = instance.get_namespace
+        self.verify_group_admin = instance.verify_group_admin
+
+
+# envvar('AUTH_METHOD'))
+auth = Authenticator(method=envvar('AUTH_METHOD'))
+auth.client()

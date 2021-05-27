@@ -87,7 +87,12 @@ def get_grafana_user(tenant: AnyStr) -> AnyStr:
 
     :tenant (AnyStr) A string representing the tenant.
     """
-    return get_grafana_users()[tenant]
+    user = None
+    try:
+        user = get_grafana_users()[tenant]
+    except KeyError:
+        return
+    return user
 
 
 def logout_grafana_user(tenant):
