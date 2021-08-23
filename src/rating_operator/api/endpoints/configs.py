@@ -114,7 +114,7 @@ def update_rating_config() -> Response:
     try:
         schema.validate_request_content(received)
         rows = config.update_config(content=received)
-    except config.ConfigurationMissing as exc:
+    except config.ConfigurationMissingError as exc:
         abort(make_response(jsonify(message=exc.message), 404))
     except schema.ValidationError as err:
         abort(make_response(jsonify(message=err.message), 400))
@@ -135,7 +135,7 @@ def rating_config_delete() -> Response:
         received = load_from_form(request.form)
     try:
         rows = config.delete_configuration(timestamp=received['timestamp'])
-    except config.ConfigurationMissing as exc:
+    except config.ConfigurationMissingError as exc:
         abort(make_response(jsonify(message=exc.message), 404))
     else:
         return {

@@ -37,7 +37,7 @@ def authenticated_request():
     }
 
 
-class InvalidToken(Exception):
+class InvalidTokenError(Exception):
     """Simple error class to handle invalid tokens."""
 
     pass
@@ -80,7 +80,7 @@ def require_admin(func: Callable) -> Callable:
         admin_api_key = envvar('RATING_ADMIN_API_KEY')
         if token == admin_api_key:
             return func(**kwargs)
-        raise InvalidToken('Internal token unrecognized')
+        raise InvalidTokenError('Internal token unrecognized')
     return wrapper
 
 

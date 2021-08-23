@@ -11,13 +11,13 @@ import sqlalchemy as sa
 from werkzeug.datastructures import ImmutableDict
 
 
-class InvalidRequestParameter(Exception):
+class InvalidRequestParameterError(Exception):
     """Simple error class to handle incoming request parameter invalidity."""
 
     pass
 
 
-class TableNameBadFormat(Exception):
+class TableNameBadFormatError(Exception):
     """
     Simple error class to handle Presto table matching error.
 
@@ -108,7 +108,7 @@ def validate_request_params(kwargs: Dict, regex: AnyStr = r'[a-zA-Z0-9_,]') -> D
     for key, value in kwargs.items():
         if recomp.match(value):
             continue
-        raise InvalidRequestParameter(f'Parameter {key}: {value} is invalid.')
+        raise InvalidRequestParameterError(f'Parameter {key}: {value} is invalid.')
     return kwargs
 
 
@@ -153,7 +153,8 @@ def assert_url_params(func: Callable) -> Callable:
         regex = re.compile(r'[a-zA-Z_]')
         if regex.match(kwargs['table']):
             return func(**kwargs)
-        raise TableNameBadFormat(f'Table name {kwargs["table"]} unproperly formatted.')
+        raise TableNameBadFormatError(f'Table name {kwargs["table"]} \
+                                      unproperly formatted.')
     return wrapper
 
 

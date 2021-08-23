@@ -44,7 +44,7 @@ def envvar_string(name: AnyStr) -> AnyStr:
     return var
 
 
-class ConfigurationMissing(Exception):
+class ConfigurationMissingError(Exception):
     """Simple error class to handle missing configuration errors."""
 
     pass
@@ -178,7 +178,7 @@ def update_config(content: Dict) -> AnyStr:
     with Lockfile(rating_rates_dir):
         config_dir = f'{rating_rates_dir}/{timestamp}'
         if not os.path.exists(config_dir):
-            raise ConfigurationMissing
+            raise ConfigurationMissingError
         for config_name, configuration in content.items():
             with open(f'{config_dir}/{config_name}.yaml', 'w+') as f:
                 yaml.safe_dump({config_name: configuration}, f, default_flow_style=False)
