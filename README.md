@@ -391,92 +391,160 @@ Parameters expected:
 
 ## ***CONFIGS***
 
-### ***RatingRules***
+### ***Rating rules***
 
-**GET `/ratingrules`** **Public**
+**Rating rules templates**
 
-Get the list of all RatingRules as object.
+**GET `/templates/list`** 
 
-**GET `/ratingrules/list/local`** **Public**
+Get the list of all the RatingRules templates names from the local configuration directory.
 
-Get the list of all the RatingRules names from the local configuration directory.
+**GET `/templates/get`**
 
-**GET `/ratingrules/list/cluster`** **Public**
+Get the RatingRule template object for a given template.
+Expect a payload with:
 
-Get the list of all the RatingRules names from the cluster.
+- `query_name `
 
-**GET `/ratingrules/<timestamp>`** ***[URL]***
+**POST `/templates/add`**
 
-Get the RatingRule for a given timestamp.
-
-**POST `/ratingrules/add`** **[PL]** **Admin**
-
-Add a new configuration.
+Add a new RatingRule template.
 
 Expect a payload with:
 
-- `rules`
-- `metrics`
-- `timestamp`
+- `query_name `
+- `query_group`
+- `query_template`
+- `query_variables`
 
-**POST `/ratingrules/update`** **[PL]** **Admin**
+**POST `/templates/delete`** 
 
-Update a configuration.
-
-Expect a payload with:
-
-- `rules`
-- `metrics`
-- `timestamp`
-
-**POST `/ratingrules/delete`** **[PL]** **Admin**
-
-Delete a configuration.
+Delete a template configuration.
 
 Expect a payload with:
 
-- `timestamp`
+- `query_name `
 
-### ***RatingRulesModels***
+***Rating rules values***
 
-**GET `/models/list`** **Public**
+**GET `templates/metric/list`** **Public**
 
-Get the list of all the RatingRuleModels.
+Get the list of all the Rating Rule values.
 
-**GET `/models/get`** **Public**
+**GET `templates/metric/get`** **Public**
 
-Get a RatingRuleModel.
+Get a Rating Rule value configuration with its name.
+Expect a payload with:
+
+- `metric_name `
+
+
+**POST `templates/metric/add`** 
+
+Stroe the rating rule value configuration in a database.
 
 Expect a payload with:
 
-- `name`
-
-**POST `/models/add`** **[PL]** **Admin**
-
-Add a new RatingRuleModel.
-
-Expect a payload with:
-
-- `name`
-- `timeframe`
 - `metric_name`
-- `metric`
+- `metric_group`
+- `tamplate_name`
+and the values of variables e.g. `'cpu' : 1 `
 
-**POST `/models/update`** **[PL]** **Admin**
 
-Update a RatingRuleModel.
+**POST `templates/metric/delete`** 
 
+Delete a rating rule value configuration in a database.
 Expect a payload with:
 
-- `name`
-- `timeframe`
 - `metric_name`
-- `metric`
 
-**POST `/models/delete`** **[PL]** **Admin**
 
-Delete a RatingRuleModel.
+**POST `templates/metric/edit`** 
+
+Edit a rating rule value configuration in a database.
+Expect a payload with:
+
+- `metric_name`
+- `metric_group`
+- `tamplate_name`
+and the values of variables e.g. `'cpu' : 1 `
+
+
+***Rating rules instance***
+
+**POST `/instances/add`** 
+
+Deploy the rating rule instance.
 
 Expect a payload with:
 
-- `name`
+- `metric_name`
+- `template_name`
+and variables values
+
+**POST `/instances/edit`** 
+
+edit the rating rule instance.
+
+Expect a payload with:
+
+- `metric-name`
+- `template-name`
+and variables values
+
+**GET `/instances/list`** 
+
+Get the list of the rating rules instances from the local configuration directory.
+
+**GET `/instances/get`**
+
+Get the rating rule instance object for a given instance name.
+Expect a payload with:
+
+- `metric-name`
+
+**POST `/instances/delete`** 
+
+Delete a rating rule instance.
+Expect a payload with:
+
+- `metric-name`
+
+
+
+**Note that** the templates and instances modification history is stored in postgres database in the folowing tables:
+
+1. The templates modification history:
+
+- `id` : the timestamp of the modification
+- `t_name` : the template name
+- `t_group` : the template group
+- `timeframe` : the duration of the query
+- `t_var` :  the query variables 
+- `t_query` : the query
+
+
+
+| id                         | t_name         | t_group    |  m_var   | t_query                                                |
+|----------------------------|----------------|------------|----------|--------------------------------------------------------|
+| 2021-08-18 12:44:01.243088 | aws-cloud-cost | cloud cost |cpu-price | (ceil(sum(instance:node_cpu:ratio) /{cpu}) * {price}   |
+
+
+
+2. The instances modification history:
+
+- `id` : the timestamp of the modification
+- `m_name` : the metric name
+- `timeframe` : the duration of the query
+- `m_var` :  the variables values
+- `t_name` : the template name
+
+
+
+| id                         | m_name         | timeframe | m_var            | t_name                |
+|----------------------------|----------------|-----------|------------------|-----------------------|
+| 2021-08-18 12:44:01.243088 | aws-cloud-cost |  3600s    |       1-0.5      | cloud-cost-simulation |
+
+
+
+

@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import timedelta
 
@@ -10,12 +11,13 @@ from rating_operator.api.endpoints.auth import auth_routes
 from rating_operator.api.endpoints.configs import configs_routes
 from rating_operator.api.endpoints.frames import frames_routes
 from rating_operator.api.endpoints.grafana import grafana_routes
+from rating_operator.api.endpoints.instances import instances_routes
 from rating_operator.api.endpoints.metrics import metrics_routes
-from rating_operator.api.endpoints.models import models_routes
 from rating_operator.api.endpoints.namespaces import namespaces_routes
 from rating_operator.api.endpoints.nodes import nodes_routes
 from rating_operator.api.endpoints.pods import pods_routes
 from rating_operator.api.endpoints.prometheus import prometheus_routes
+from rating_operator.api.endpoints.templates import templates_routes
 from rating_operator.api.endpoints.tenants import tenants_routes
 from rating_operator.api.postgres import engine
 from rating_operator.api.secret import register_admin_key
@@ -30,6 +32,7 @@ def initialize_app():
     Return an initialized Flask object
     """
     app = Flask(__name__)
+    configure_logging()
     CORS(app, supports_credentials=True, origins=os.environ.get('ALLOW_ORIGIN', '*'))
     app.secret_key = register_admin_key()
     app.permanent_session_lifetime = timedelta(hours=1)
@@ -46,9 +49,16 @@ def initialize_app():
     app.register_blueprint(nodes_routes)
     app.register_blueprint(pods_routes)
     app.register_blueprint(prometheus_routes)
-    app.register_blueprint(models_routes)
+    app.register_blueprint(instances_routes)
+    app.register_blueprint(templates_routes)
     app.register_blueprint(tenants_routes)
     return app
+
+
+def configure_logging():
+    # register root logging
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger('werkzeug').setLevel(logging.INFO)
 
 
 def create_app():
