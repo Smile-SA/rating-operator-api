@@ -1,7 +1,9 @@
 from typing import AnyStr, Dict, List
 
 from rating_operator.api.check import date_checker_start_end, multi_tenant
+from rating_operator.api.db import db
 from rating_operator.api.utils import process_query
+from rating_operator.api.utils import process_query_get_count
 
 import sqlalchemy as sa
 from sqlalchemy.sql.expression import bindparam
@@ -602,3 +604,82 @@ def get_metric_to_date(metric: AnyStr,
         'namespaces': namespaces
     }
     return process_query(qry, params)
+
+
+def store_template_conf(t_id, t_name, t_group, t_query, t_var):
+    qry = sa.text("""
+        INSERT INTO template (id, t_name, t_group, t_query, t_var)
+        VALUES (:t_id, :t_name, :t_group, :t_query, :t_var)
+    """)
+    params = {
+        't_id': t_id,
+        't_name': t_name,
+        't_group': t_group,
+        't_var': t_var,
+        't_query': t_query
+    }
+    return process_query_get_count(qry, params)
+
+
+def store_metric_conf(m_id, m_name, timeframe, m_var, t_name):
+    qry = sa.text("""
+        INSERT INTO metric (id, m_name, timeframe, m_var, t_name)
+        VALUES (:m_id, :m_name, :timeframe, :m_var, :t_name)
+    """)
+    params = {
+        'm_id': m_id,
+        'm_name': m_name,
+        'timeframe': timeframe,
+        'm_var': m_var,
+        't_name': t_name
+    }
+    return process_query_get_count(qry, params)
+
+
+def list_metric_conf():
+    qry = sa.text("""
+        SELECT m_name
+        FROM metric
+        GROUP BY m_name
+    """)
+    return [dict(row) for row in db.engine.execute(qry)]
+
+
+def get_metric_conf(name):
+    qry = sa.text("""
+        SELECT *
+        FROM metric
+        WHERE m_name = :name
+    """)
+    return process_query(qry, {'name': name})
+
+
+def get_template_variables(name):
+    qry = sa.text("""
+        SELECT t_var
+        FROM template
+        WHERE t_name = :name
+    """)
+    return process_query(qry, {'name': name})
+
+
+def delete_metric_conf(name):
+    qry = sa.text("""
+        DELETE FROM metric
+        WHERE m_name = :name
+    """)
+    params = {
+        'name': name
+    }
+    return process_query_get_count(qry, params)
+
+
+def delete_template_conf(name):
+    qry = sa.text("""
+        DELETE FROM template
+        WHERE t_name = :name
+    """)
+    params = {
+        'name': name
+    }
+    return process_query_get_count(qry, params)

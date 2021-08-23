@@ -324,7 +324,7 @@ def login_user():
         return response
     else:
         message = 'Invalid credentials/Authentication server unreachable'
-        return render_template('login.html', message=message)
+        return make_response(render_template('login.html', message=message), 400)
 
 
 def new_user(tenant: AnyStr, password: AnyStr) -> bool:
@@ -362,8 +362,9 @@ def signup_user() -> Response:
             grafana.create_grafana_user(tenant, password)
             if admin_user == 'on':
                 grafana.update_grafana_role(grafana.get_grafana_user(tenant), 'Editor')
-        return render_template('signup.html', message='User created')
-    return render_template('signup.html', message='User already exists')
+        return make_response(render_template('signup.html', message='User created'), 200)
+    return make_response(render_template('signup.html',
+                         message='User already exists'), 403)
 
 
 def format_url(path: AnyStr) -> AnyStr:

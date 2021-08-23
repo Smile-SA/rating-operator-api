@@ -43,6 +43,24 @@ CREATE TABLE frame_status (
   PRIMARY KEY (report_name, metric)
 );
 
+CREATE TABLE template (
+  id      TIMESTAMP,
+  t_name   VARCHAR(253) NOT NULL,
+  t_group    VARCHAR(253) NOT NULL,
+  t_var    VARCHAR(253) NOT NULL,
+  t_query  TEXT NOT NULL,
+  PRIMARY KEY (id, t_name)
+);
+
+CREATE TABLE metric (
+  id       TIMESTAMP,
+  m_name   VARCHAR(253) NOT NULL,
+  timeframe  VARCHAR(253) NOT NULL,
+  m_var    VARCHAR(253) NOT NULL,
+  t_name  VARCHAR(253) NOT NULL,
+  PRIMARY KEY (id,m_name)
+);
+
 CREATE TABLE users (
   tenant_id   VARCHAR(253) NOT NULL,
   password    VARCHAR(253) NOT NULL,
