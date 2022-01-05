@@ -38,7 +38,7 @@ build-master:
   script:
   - *docker_login
   - docker build -f docker/Dockerfile --pull -t "$CI_REGISTRY_IMAGE:latest" .
-  - docker push "$CI_REGISRY_IMAGE"
+  - docker push "$CI_REGISTRY_IMAGE"
   only:
     refs:
     - master
