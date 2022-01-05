@@ -61,6 +61,15 @@ CREATE TABLE metric (
   PRIMARY KEY (id,m_name)
 );
 
+CREATE TABLE instance (
+  start_time    TIMESTAMP,
+  end_time      TIMESTAMP,
+  instance_name   VARCHAR(253) NOT NULL,
+  instance_promql TEXT NOT NULL,
+  instance_values VARCHAR(253) NOT NULL,
+  PRIMARY KEY (start_time,instance_name)
+);
+
 CREATE TABLE users (
   tenant_id   VARCHAR(253) NOT NULL,
   password    VARCHAR(253) NOT NULL,

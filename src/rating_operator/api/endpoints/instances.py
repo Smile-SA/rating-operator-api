@@ -128,6 +128,7 @@ def models_instance_edit() -> Response:
 
     # Check for template demand
     if 'template_name' in patch_vars:
+
         template_name = 'rating-rule-template-' + config['template_name']
         try:
             response = api.get_namespaced_custom_object(**{

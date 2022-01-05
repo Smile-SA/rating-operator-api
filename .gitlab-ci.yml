@@ -19,7 +19,7 @@ stages:
 
 run-tests-37:
   stage: test
-  image: python:3.7-alpine
+  image: python:3.7-alpine3.14
   script:
   - apk --update --no-cache add python3 python3-dev py-pip openldap-dev build-base postgresql-dev
   - pip install wheel tox
@@ -27,7 +27,7 @@ run-tests-37:
 
 run-tests-38:
   stage: test
-  image: python:3.8-alpine
+  image: python:3.8-alpine3.14
   script:
   - apk --update --no-cache add python3 python3-dev py-pip openldap-dev build-base postgresql-dev
   - pip install wheel tox
@@ -38,7 +38,7 @@ build-master:
   script:
   - *docker_login
   - docker build -f docker/Dockerfile --pull -t "$CI_REGISTRY_IMAGE:latest" .
-  - docker push "$CI_REGISTRY_IMAGE"
+  - docker push "$CI_REGISRY_IMAGE"
   only:
     refs:
     - master
