@@ -200,12 +200,48 @@ def models_metric_add():
     metric_name = config['metric_name']
     template_name = ''
     timeframe = config['timeframe']
-    params_str = config['cpu'] + '-' + config['memory'] + '-' + config['price']
+    par = str(config['cpu']) + '-' + str(config['memory']) + '-' + str(config['price'])
     datetimeobj = datetime.datetime.now()
     metric_id = datetimeobj.strftime('%d-%b-%Y (%H:%M:%S.%f)')
     query.store_metric_conf(metric_id, metric_name, timeframe,
-                            params_str, template_name)
+                            par, template_name)
     return {
         'total': 1,
         'results': f'RatingRuleValues {config["metric_name"]} stored'
+    }
+
+
+@templates_routes.route('/templates/instance/add', methods=['POST'])
+def models_db_instance_add():
+    """Save the history of the RatingRuleInstances in database."""
+    config = request.form or request.get_json()
+    instance_name = config['metric_name']
+    instance_promql = config['promql']
+    datetimeobj = datetime.datetime.now()
+    start_time = datetimeobj.strftime('%d-%b-%Y (%H:%M:%S.%f)')
+    end_time = None
+    body_spec = {}
+    config_vars = {'cpu', 'memory', 'price'}
+    for key in config_vars:
+        body_spec[key] = config[key]
+    instance_values = str(body_spec)
+    query.store_instance_conf(instance_name, instance_promql,
+                              start_time, end_time, instance_values)
+    return {
+        'total': 1,
+        'results': f'RatingRuleInstance {config["metric_name"]} stored'
+    }
+
+
+@templates_routes.route('/templates/instance/delete', methods=['POST'])
+def models_db_instance_delete():
+    """Delete RatingRuleInstances in database."""
+    config = request.form or request.get_json()
+    instance_name = config['metric_name']
+    datetimeobj = datetime.datetime.now()
+    end_time = datetimeobj.strftime('%d-%b-%Y (%H:%M:%S.%f)')
+    query.delete_instance_conf(instance_name, end_time)
+    return {
+        'total': 1,
+        'results': f'RatingRuleInstance {config["metric_name"]} stored'
     }

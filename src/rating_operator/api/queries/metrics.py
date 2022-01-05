@@ -683,3 +683,35 @@ def delete_template_conf(name):
         'name': name
     }
     return process_query_get_count(qry, params)
+
+
+def store_instance_conf(instance_name, instance_promql, start_time, end_time,
+                        instance_values):
+    qry = sa.text("""
+        INSERT INTO instance (instance_name, instance_promql, start_time, end_time,
+                              instance_values)
+        VALUES (:instance_name, :instance_promql, :start_time, :end_time,
+                :instance_values)
+    """)
+    params = {
+        'instance_name': instance_name,
+        'instance_promql': instance_promql,
+        'start_time': start_time,
+        'end_time': end_time,
+        'instance_values': instance_values
+    }
+    return process_query_get_count(qry, params)
+
+
+def delete_instance_conf(instance_name, end_time):
+    qry = sa.text("""
+        UPDATE instance
+        SET end_time = :end_time
+        WHERE instance_name = :instance_name
+    """)
+
+    params = {
+        'end_time': end_time,
+        'instance_name': instance_name
+    }
+    return process_query_get_count(qry, params)
