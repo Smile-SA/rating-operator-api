@@ -82,7 +82,7 @@ def models_template_new() -> Response:
         'spec': {
             'query_name': name,
             'query_group': template_group,
-            'query_template': tempalte,
+            'query_template': tempalte
         }
     }
     api = client.CustomObjectsApi(get_client())
