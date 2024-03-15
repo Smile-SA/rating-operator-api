@@ -72,18 +72,17 @@ def models_template_new() -> Response:
     datetimeobj = datetime.datetime.now()
     template_id = datetimeobj.strftime('%d-%b-%Y (%H:%M:%S.%f)')
     query.store_template_conf(template_id, name, template_group, tempalte, '')
-
+    body_spec = {}
+    body_spec['query_name'] = name
+    body_spec['query_group'] = template_group
+    body_spec['query_template'] = tempalte
     body = {
         'apiVersion': 'rating.alterway.fr/v1',
         'kind': 'RatingRuleTemplate',
         'metadata': {
             'name': template_name
         },
-        'spec': {
-            'query_name': name,
-            'query_group': template_group,
-            'query_template': tempalte
-        }
+        'spec': body_spec
     }
     api = client.CustomObjectsApi(get_client())
     try:
