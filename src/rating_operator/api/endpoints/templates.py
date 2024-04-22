@@ -69,9 +69,9 @@ def models_template_new() -> Response:
     tempalte = config['query_template']
     template_name = 'rating-rule-template-' + name
 
-    datetimeobj = datetime.datetime.now()
-    template_id = datetimeobj.strftime('%d-%b-%Y (%H:%M:%S.%f)')
-    #query.store_template_conf(template_id, name, template_group, tempalte, '')
+    # datetimeobj = datetime.datetime.now()
+    # template_id = datetimeobj.strftime('%d-%b-%Y (%H:%M:%S.%f)')
+    # query.store_template_conf(template_id, name, template_group, tempalte, '')
     body_spec = {}
     body_spec['query_name'] = name
     body_spec['query_group'] = template_group
