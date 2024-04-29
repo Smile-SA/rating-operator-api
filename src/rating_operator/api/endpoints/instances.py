@@ -22,7 +22,7 @@ def models_rule_list() -> Response:
     try:
         api = client.CustomObjectsApi(get_client())
         response = api.list_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'plural': 'ratingruleinstances',
             'namespace': envvar('RATING_NAMESPACE')
@@ -42,7 +42,7 @@ def models_rule_get() -> Response:
     api = client.CustomObjectsApi(get_client())
     try:
         response = api.get_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'plural': 'ratingruleinstances',
             'namespace': envvar('RATING_NAMESPACE'),
@@ -71,7 +71,7 @@ def models_instance_add() -> Response:
         template_name = 'rating-rule-template-' + config['template_name']
         try:
             response = api.get_namespaced_custom_object(**{
-                'group': 'rating.alterway.fr',
+                'group': 'rating.smile.fr',
                 'version': 'v1',
                 'plural': 'ratingruletemplates',
                 'namespace': envvar('RATING_NAMESPACE'),
@@ -95,7 +95,7 @@ def models_instance_add() -> Response:
         body_spec[key] = config[key]
 
     body = {
-        'apiVersion': 'rating.alterway.fr/v1',
+        'apiVersion': 'rating.smile.fr/v1',
         'kind': 'RatingRuleInstance',
         'metadata': {
             'name': name
@@ -105,7 +105,7 @@ def models_instance_add() -> Response:
     api = client.CustomObjectsApi(get_client())
     try:
         api.create_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'namespace': envvar('RATING_NAMESPACE'),
             'plural': 'ratingruleinstances',
@@ -132,7 +132,7 @@ def models_instance_edit() -> Response:
         template_name = 'rating-rule-template-' + config['template_name']
         try:
             response = api.get_namespaced_custom_object(**{
-                'group': 'rating.alterway.fr',
+                'group': 'rating.smile.fr',
                 'version': 'v1',
                 'plural': 'ratingruletemplates',
                 'namespace': envvar('RATING_NAMESPACE'),
@@ -151,7 +151,7 @@ def models_instance_edit() -> Response:
 
     try:
         cr = api.get_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'plural': 'ratingruleinstances',
             'namespace': envvar('RATING_NAMESPACE'),
@@ -171,7 +171,7 @@ def models_instance_edit() -> Response:
 
     try:
         api.patch_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'plural': 'ratingruleinstances',
             'namespace': envvar('RATING_NAMESPACE'),
@@ -193,7 +193,7 @@ def models_metric_delete() -> Response:
     api = client.CustomObjectsApi(get_client())
     try:
         api.delete_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'namespace': envvar('RATING_NAMESPACE'),
             'plural': 'ratingruleinstances',
