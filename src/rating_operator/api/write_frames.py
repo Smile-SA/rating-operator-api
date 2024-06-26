@@ -57,8 +57,8 @@ def write_rated_frames(frames: List[List]) -> object:
         FROM frames_copy
         ON CONFLICT ON CONSTRAINT frames_pkey DO NOTHING
     """
-    with db.engine.connect() as connection:
-       res = connection.execute('TRUNCATE frames_copy')
+    #with db.engine.connect() as connection:
+    res = connection.execute('TRUNCATE frames_copy')
     connection = db.engine.raw_connection()
     with tempfile.NamedTemporaryFile(mode='w+',
                                      encoding='utf-8',
