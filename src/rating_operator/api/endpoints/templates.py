@@ -25,7 +25,7 @@ def models_template_list() -> Response:
     try:
         api = client.CustomObjectsApi(get_client())
         response = api.list_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'plural': 'ratingruletemplates',
             'namespace': envvar('RATING_NAMESPACE')
@@ -46,7 +46,7 @@ def models_template_get() -> Response:
     template_name = 'rating-rule-template-' + request.args.to_dict()['query_name']
     try:
         response = api.get_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'plural': 'ratingruletemplates',
             'namespace': envvar('RATING_NAMESPACE'),
@@ -69,15 +69,15 @@ def models_template_new() -> Response:
     tempalte = config['query_template']
     template_name = 'rating-rule-template-' + name
 
-    datetimeobj = datetime.datetime.now()
-    template_id = datetimeobj.strftime('%d-%b-%Y (%H:%M:%S.%f)')
-    query.store_template_conf(template_id, name, template_group, tempalte, '')
+    # datetimeobj = datetime.datetime.now()
+    # template_id = datetimeobj.strftime('%d-%b-%Y (%H:%M:%S.%f)')
+    # query.store_template_conf(template_id, name, template_group, tempalte, '')
     body_spec = {}
     body_spec['query_name'] = name
     body_spec['query_group'] = template_group
     body_spec['query_template'] = tempalte
     body = {
-        'apiVersion': 'rating.alterway.fr/v1',
+        'apiVersion': 'rating.smile.fr/v1',
         'kind': 'RatingRuleTemplate',
         'metadata': {
             'name': template_name
@@ -87,7 +87,7 @@ def models_template_new() -> Response:
     api = client.CustomObjectsApi(get_client())
     try:
         api.create_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'namespace': envvar('RATING_NAMESPACE'),
             'plural': 'ratingruletemplates',
@@ -107,7 +107,7 @@ def models_template_delete() -> Response:
     api = client.CustomObjectsApi(get_client())
     try:
         api.delete_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'plural': 'ratingruletemplates',
             'namespace': envvar('RATING_NAMESPACE'),
@@ -131,7 +131,7 @@ def models_template_edit() -> Response:
     api = client.CustomObjectsApi(get_client())
     try:
         cr = api.get_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'plural': 'ratingruletemplates',
             'namespace': envvar('RATING_NAMESPACE'),
@@ -149,7 +149,7 @@ def models_template_edit() -> Response:
         }
 
         api.patch_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'plural': 'ratingruletemplates',
             'namespace': envvar('RATING_NAMESPACE'),

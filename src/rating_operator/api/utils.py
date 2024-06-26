@@ -26,7 +26,8 @@ def process_query_get_count(qry: TextClause, params: Dict) -> int:
 
     Return the number of row affected by the query
     """
-    res = db.engine.execute(qry.params(**params))
+    with db.engine.begin() as conn:
+        res = conn.execute(qry.params(**params))
     return res.rowcount
 
 

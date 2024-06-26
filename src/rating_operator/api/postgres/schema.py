@@ -7,6 +7,7 @@ from typing import Dict
 
 import pkg_resources
 
+from sqlalchemy import text
 from sqlalchemy.engine import Engine
 
 
@@ -56,8 +57,8 @@ def db_update(engine: Engine):
 
     conn = engine.connect()
     with conn.begin():
-        conn.execute(schema_version_table)
-        cur_version = conn.execute('SELECT version FROM schema_version').scalar()
+        conn.execute(text(schema_version_table))
+        cur_version = conn.execute(text('SELECT version FROM schema_version')).scalar()
 
         if cur_version > required_version:
             raise DatabaseError(f'Database schema is at version {cur_version}, which is '
@@ -75,7 +76,8 @@ def db_update(engine: Engine):
             with script.open(encoding='utf8') as fin:
                 query = fin.read()
                 if query.strip():
-                    conn.execute(query)
+                    conn.execute(text(query))
 
-            conn.execute('UPDATE schema_version SET version=%s', [script_version])
+            stmt = text('UPDATE schema_version SET version=:version')
+            conn.execute(stmt.bindparams(version=script_version))
         logging.info('Schema update complete.')
