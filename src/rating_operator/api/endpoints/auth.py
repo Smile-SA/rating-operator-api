@@ -3,20 +3,23 @@ import os
 import time
 from functools import wraps
 from typing import Any, AnyStr, Callable, Dict, Text
+
 from flask import Blueprint, abort, jsonify, make_response, redirect
 from flask import Response, render_template, request, session
 
 from keycloak import KeycloakOpenID, exceptions
 
 from kubernetes import client
+from kubernetes.client.rest import ApiException
+
+import ldap
+
 from passlib.context import CryptContext
 
 from rating_operator.api.config import envvar, envvar_string
 from rating_operator.api.endpoints import grafana as grafana
 from rating_operator.api.queries import auth as query
 from rating_operator.api.secret import get_client
-
-
 
 
 auth_routes = Blueprint('authentication', __name__)
