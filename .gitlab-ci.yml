@@ -17,19 +17,21 @@ stages:
 - test
 - build
 
-run-tests-37:
+run-tests-3-12:
   stage: test
-  image: python:3.7-alpine3.14
+  image: python:3.12.4-alpine3.20
   script:
-  - apk --update --no-cache add python3 python3-dev py-pip openldap-dev build-base postgresql-dev libffi libffi-dev
+  - apk --update --no-cache add python3 python3-dev py-pip openldap-dev build-base postgresql-dev libffi libffi-dev curl gcc musl-dev
+  - pip install --upgrade pip
   - pip install wheel tox
   - tox
 
-run-tests-38:
+run-tests-3-8:
   stage: test
   image: python:3.8-alpine3.14
   script:
-  - apk --update --no-cache add python3 python3-dev py-pip openldap-dev build-base postgresql-dev libffi libffi-dev
+  - apk --update --no-cache add python3 python3-dev py-pip openldap-dev build-base postgresql-dev libffi libffi-dev curl gcc musl-dev
+  - pip install --upgrade pip
   - pip install wheel tox
   - tox
 
