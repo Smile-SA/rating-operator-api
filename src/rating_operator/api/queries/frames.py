@@ -107,7 +107,7 @@ def update_rated_metrics_object(metric: AnyStr, last_insert: AnyStr):
     rated_namespace = envvar('RATING_NAMESPACE')
     custom_api = client.CustomObjectsApi(get_client())
     body = {
-        'apiVersion': 'rating.alterway.fr/v1',
+        'apiVersion': 'rating.smile.fr/v1',
         'kind': 'RatedMetric',
         'metadata': {
             'namespace': rated_namespace,
@@ -119,7 +119,7 @@ def update_rated_metrics_object(metric: AnyStr, last_insert: AnyStr):
         }
     }
     try:
-        custom_api.create_namespaced_custom_object(group='rating.alterway.fr',
+        custom_api.create_namespaced_custom_object(group='rating.smile.fr',
                                                    version='v1',
                                                    namespace=rated_namespace,
                                                    plural='ratedmetrics',
@@ -127,7 +127,7 @@ def update_rated_metrics_object(metric: AnyStr, last_insert: AnyStr):
     except ApiException as exc:
         if exc.status != 409:
             raise exc
-        custom_api.patch_namespaced_custom_object(group='rating.alterway.fr',
+        custom_api.patch_namespaced_custom_object(group='rating.smile.fr',
                                                   version='v1',
                                                   namespace=rated_namespace,
                                                   plural='ratedmetrics',

@@ -50,7 +50,7 @@ def rating_rules_list() -> Response:
     try:
         api = client.CustomObjectsApi(get_client())
         response = api.list_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'plural': 'ratingrules',
             'namespace': envvar('RATING_NAMESPACE')
@@ -172,7 +172,7 @@ def frontend_rating_config(config_name: AnyStr) -> Response:
     try:
         api = client.CustomObjectsApi(get_client())
         response = api.get_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'plural': 'ratingrules',
             'namespace': envvar('RATING_NAMESPACE'),
@@ -195,7 +195,7 @@ def new_frontend_rating_config() -> Response:
     except schema.ValidationError as exc:
         abort(make_response(jsonify(message=exc.message), 400))
     body = {
-        'apiVersion': 'rating.alterway.fr/v1',
+        'apiVersion': 'rating.smile.fr/v1',
         'kind': 'RatingRule',
         'metadata': {
             'name': received['name'],
@@ -210,7 +210,7 @@ def new_frontend_rating_config() -> Response:
     try:
         api = client.CustomObjectsApi(get_client())
         api.create_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'namespace': envvar('RATING_NAMESPACE'),
             'plural': 'ratingrules',
@@ -233,7 +233,7 @@ def update_frontend_rating_config() -> Response:
     try:
         api = client.CustomObjectsApi(get_client())
         cr = api.get_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'plural': 'ratingrules',
             'namespace': envvar('RATING_NAMESPACE'),
@@ -245,7 +245,7 @@ def update_frontend_rating_config() -> Response:
             'rules': received.get('rules', cr['spec']['rules'])
         }
         api.patch_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'plural': 'ratingrules',
             'namespace': envvar('RATING_NAMESPACE'),
@@ -263,7 +263,7 @@ def delete_frontend_rating_config() -> Response:
     try:
         api = client.CustomObjectsApi(get_client())
         api.delete_namespaced_custom_object(**{
-            'group': 'rating.alterway.fr',
+            'group': 'rating.smile.fr',
             'version': 'v1',
             'namespace': envvar('RATING_NAMESPACE'),
             'plural': 'ratingrules',
