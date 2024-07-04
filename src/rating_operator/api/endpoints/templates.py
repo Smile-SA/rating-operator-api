@@ -123,6 +123,8 @@ def models_template_edit() -> Response:
     """Edit a RatingRuleTemplate."""
     config = request.form or request.get_json()
     name = config['query_name']
+    if isinstance(name, list):
+        name = "".join(name)
     template_name = 'rating-rule-template-' + name
 
     datetimeobj = datetime.datetime.now()
