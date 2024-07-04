@@ -74,6 +74,3 @@ build-dockerhub:
   except:
     refs:
     - master
-    
-before_script:
-  - *docker_login_dockerhub
