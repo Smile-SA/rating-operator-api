@@ -58,7 +58,7 @@ There's no time range specified in this query, so we need to specify it using ur
 The default value for those is from two hours to now.
 
 ```sh
-$ curl http://rating-operator-api.rating:80/namespaces/default/rating?start=2021-02-05+10%3A22%3A53.604Z&end=2021-02-05+16%3A22%3A53.604Z
+$ curl http://rating-operator-api.rating:80/namespaces/default/rating?start=2024-02-05+10%3A22%3A53.604Z&end=2024-02-05+16%3A22%3A53.604Z
 {
     "results": [...],
     "total": ...
@@ -527,7 +527,7 @@ Expect a payload with:
 
 | id                         | t_name         | t_group    |  m_var   | t_query                                                |
 |----------------------------|----------------|------------|----------|--------------------------------------------------------|
-| 2021-08-18 12:44:01.243088 | aws-cloud-cost | cloud cost |cpu-price | (ceil(sum(instance:node_cpu:ratio) /{cpu}) * {price}   |
+| 2024-08-18 12:44:01.243088 | aws-cloud-cost | cloud cost |cpu-price | (ceil(sum(instance:node_cpu:ratio) /{cpu}) * {price}   |
 
 
 
@@ -543,7 +543,7 @@ Expect a payload with:
 
 | id                         | m_name         | timeframe | m_var            | t_name                |
 |----------------------------|----------------|-----------|------------------|-----------------------|
-| 2021-08-18 12:44:01.243088 | aws-cloud-cost |  3600s    |       1-0.5      | cloud-cost-simulation |
+| 2024-08-18 12:44:01.243088 | aws-cloud-cost |  3600s    |       1-0.5      | cloud-cost-simulation |
 
 
 
